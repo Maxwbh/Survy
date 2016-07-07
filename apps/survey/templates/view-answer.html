@@ -1,0 +1,42 @@
+{% extends 'congratulations.html' %}
+
+{% block content %}
+    <section class="page-header page-header-xs">
+        <div class="container">
+            <div class="col-sm-2 text-primary">
+                {% if survey.image %}
+                    <img src="{{ survey.image.url }}" class="img-thumbnail">
+                {% else %}
+                    <i class="fa fa-edit fa-5x"></i>
+                {% endif %}
+            </div>
+            <div class="col-sm-8">
+                <h1>{{ survey }}</h1>
+                <span class="font-lato weight-300 size-18 hidden-xs">{{ survey.description }}</span>
+            </div>
+            <div class="col-sm-2">
+                <a href="?action=print" class="btn btn-info pull-right"><i class="fa fa-print"></i> Print</a>
+            </div>
+        </div>
+    </section>
+
+    <div id="content" class="padding-40" style="background-color: #F3F3F3">
+        {% for questionnaire in survey.questionnaire_set.all %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-8 col-sm-8 text-left">
+                        <h4 style="color: #000"><strong>{{ questionnaire }}</strong></h4>
+                        <ul class="list-unstyled">
+                            {% for question in questionnaire.question_set.all %}
+                            <li style="border-bottom: solid; border-width: 2px; border-color: #F3F3F3"><div style="min-width: 50%; display: inline-block"><strong>{{ question }}</strong></div>{{ question.get_response|default_if_none:"" }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

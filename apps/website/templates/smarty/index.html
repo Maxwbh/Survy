@@ -1,0 +1,78 @@
+{% extends 'smarty/_base.html' %}
+{% load  i18n %}
+{% block section %}
+
+    <!-- INFO BAR -->
+    <section class="info-bar info-bar-clean">
+        <div class="container">
+
+            <a href="{% if user.is_authenticated %} {% url 'survey:dashboard' %} {% else %} {% url 'login' %} {% endif %}" class="btn btn-featured btn-green btn-inverse">
+                <span>{% trans 'ACCESS YOUR ACCOUNT TO MANAGE YOUR SURVEYS' %}</span>
+                {% if user.is_authenticated %}
+                    <i class="et-profile-male"></i>
+                {% else %}
+                    <i class="et-key"></i>
+                {% endif %}
+
+            </a>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="box-icon box-icon-center box-icon-transparent box-icon-large">
+                        <a class="box-icon-title" href="#">
+                            <i class="noborder et-pencil" style="background-color:#1e719b; color:#fff;"></i>
+                            <h2>CREATE YOUR SURVEY</h2>
+                        </a>
+                        <p>Nullam id dolor id nibh ultricies vehicula ut id elit. Integer posuere erat a ante venenatis
+                            dapibus posuere velit aliquet.</p>
+                        <a class="box-icon-more font-lato weight-300" href="#">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="box-icon box-icon-center box-icon-transparent box-icon-large">
+                        <a class="box-icon-title" href="#">
+                            <i class="noborder fa fa-pencil-square-o" style="background-color:#1e719b; color:#fff;"></i>
+                            <h2>WRITE YOUR QUESTION</h2>
+                        </a>
+                        <p>Nullam id dolor id nibh ultricies vehicula ut id elit. Integer posuere erat a ante venenatis
+                            dapibus posuere velit aliquet.</p>
+                        <a class="box-icon-more font-lato weight-300" href="#">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="box-icon box-icon-center box-icon-color box- box-icon-large">
+                        <a class="box-icon-title" href="#">
+                            <i class="noborder et-browser" style="background-color:#1e719b; color:#fff;"></i>
+                            <h2>PREVIEW YOUR SURVEY</h2>
+                        </a>
+                        <p>Nullam id dolor id nibh ultricies vehicula ut id elit. Integer posuere erat a ante venenatis
+                            dapibus posuere velit aliquet.</p>
+                        <a class="box-icon-more font-lato weight-300" href="#">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /INFO BAR -->
+
+
+    <!-- WELCOME -->
+    <section class="nopadding-bottom">
+        <div class="container">
+            <header class="text-center margin-bottom-40">
+                <h1 class="weight-300">Welcome to GooReports</h1>
+
+                <h2 class="weight-300 letter-spacing-1 size-25"><span>Quickly Create a Free Online Survey</span></h2>
+            </header>
+
+            <div class="text-center">
+                <p class="lead">
+                    You don't have to be a web programmer to create a free online survey using our proprietary system! Part of what makes our questionnaire software so popular is the ability to create a survey in a matter of minutes regardless of your tech background — most of our customers don't know any code.
+                </p>
+            </div>
+        </div>
+    </section>
+    <!-- /WELCOME -->
+
+    <!-- /BUTTON CALLOUT -->
+{% endblock %}

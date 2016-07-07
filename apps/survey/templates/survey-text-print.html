@@ -1,0 +1,104 @@
+{% load i18n humanize %}
+<html>
+<head>
+<style>
+    @page {
+        size: a4 portrait;
+        /* Static Frame */
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            border: 0pt solid white;
+            left: 50pt; width: 512pt; top: 50pt; height: 20pt;
+        }
+        /* Content Frame */
+        @frame content_frame {
+            border: 0pt solid white;
+            left: 50pt; width: 512pt; top: 80pt; height: 692pt;
+        }
+        /* Another static Frame */
+        @frame footer_frame {
+            border: 0pt solid white;
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 512pt; top: 772pt; height: 14pt;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content"><h1>Text Report - {{ survey }}</h1></div>
+
+    <!-- Content for Static Frame 'footer_frame' -->
+    <div id="footer_content">Page <pdf:pagenumber>
+        of <pdf:pagecount>
+    </div>
+
+    <!-- HTML Content -->
+    {% for questionnaire in survey.questionnaire_set.all %}
+        {% if questionnaire.text_type == True %}
+        <div id="panel-ui-tan-qt{{ questionnaire.id }}" class="panel panel-info">
+            <div class="panel-heading">
+                <span class="elipsis">
+                    <!-- panel title -->
+                        <h2><strong>Q.{{ forloop.counter|floatformat:"02d" }} - {{ questionnaire }}</strong></h2>
+                </span>
+
+                <ul class="options pull-right list-inline">
+                    <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom"
+                           data-original-title="Colapse"></a></li>
+                    <li><a href="#" class="opt panel_fullscreen hidden-xs" data-toggle="tooltip" title=""
+                           data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand"></i></a>
+                    </li>
+                </ul>
+                <!-- /right options -->
+            </div>
+            <!-- panel content -->
+            <div class="panel-body">
+            {% for question in questionnaire.question_set.all %}
+            {% if question.get_type.type in 'textAreaRow,textAnsRow' %}
+            <div id="panel-misc-portlet-qq{{ question.id }}" class="panel panel-clean">
+                <div class="panel-heading">
+
+                    <h3><strong>{{ question }}</strong></h3>
+                    </span>
+
+                    <!-- right options -->
+                    <ul class="options pull-right list-inline">
+                        <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Colapse"></a></li>
+                    </ul>
+                </div>
+
+                <!-- panel content -->
+                <div class="panel-body" style="display: block;">
+                    {% for type in question.type_set.all %}
+                        {% with type.get_response as types %}
+                            {% if types.count == 0 %}
+                                {% trans 'no values' %}
+                            {% else %}
+                                <div class="row">
+                                <ul class="bullet-list list-unstyled">
+                                {% for value in types.values %}
+                                    <div class="col-md-6">
+                                        <li class="green">
+                                            {{ value.texto }}
+                                        </li>
+                                    </div>
+                                {% endfor %}
+                                </ul>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            <!-- /panel content -->
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+{% extends 'smarty/_base.html' %}
+{% load i18n %}
+
+{% block main_wrapper %}
+    <div id="wrapper">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="text-left">
+                    <h4><strong>National Bank of Greece (ETHNIKI TRAPEZA ELLADOS)</strong></h4>
+                    <table class="table table-striped">
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'Transaction Id' %}</strong></td>
+                            <td class="noborder-top text-primary"><strong>{{ amt_rec.transaction_num }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'Beneficiary' %}</strong></td>
+                            <td class="noborder-top text-primary"><strong>ED COMPANY OE</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'Account Number' %}</strong></td>
+                            <td class="noborder-top text-primary"><strong>258/447042-77</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'IBAN' %}</strong></td>
+                            <td class="noborder-top text-primary"><strong>GR16 0110 2580 0000 2584 4704 277</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'SWIFT - BIC' %}</strong></td>
+                            <td class="noborder-top text-primary"><strong>ETHNGRAA</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="noborder-top"><strong>{% trans 'Amount' %}</strong></td>
+                            <td class="noborder-top text-danger">
+                                <strong>{{ amt_rec.amount }} &euro;</strong></td>
+                        </tr>
+                    </table>
+                    <div class="alert alert-mini alert-danger"><!-- WARNING -->
+                        <strong>Important</strong>
+                        <small>{{ message }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button onclick="window.close()" class="btn btn-warning fa fa-close hidden-print"> Close</button>
+                <button onclick="window.print()" class="btn btn-primary fa fa-print hidden-print"> Print</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_javascript %}{% if imprimir == True %}
+<script>
+    $(document).on('ready', function() {
+        $(window).load(function () {
+            window.print();
+        });
+    })
+</script>
+{% endif %}{% endblock %}

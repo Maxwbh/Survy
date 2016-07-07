@@ -1,0 +1,53 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load  i18n %}
+
+{% block top_nav %}{% endblock %}
+{% block top_bar %}{% endblock %}
+
+{% block extra_stylesheets %}
+    <link href="{{ STATIC_URL }}jquery-bar-rating/themes/fontawesome-stars.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}form.step/css/all.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <section class="page-header page-header-xs">
+        <div class="container">
+            <div class="col-sm-12 text-primary">
+                <h1><span class="fa {{ icon }} lg"></span> {{ caption }}</h1>
+                <span class="font-lato weight-300 size-18 hidden-xs"></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="login-box">
+        <!-- login form -->
+        <form action="#" method="post" class="sky-form boxed">
+            {% csrf_token %}
+            <header class="text-center"><img src="{{ MEDIA_URL }}{{ website.config.logo }}" width="50%" alt=""/></header>
+            {% if err_msg %}
+            <div class="alert alert-danger noborder text-center weight-400 nomargin noradius">
+                <i class="glyphicon glyphicon-info-sign pull-left"></i> {{ err_msg }}
+            </div>
+            {% endif %}
+            <fieldset>
+                <section>
+                    <label class="label">{{ label }}</label>
+                    <label class="input">
+                        <i class="icon-append fa {{ icon }}"></i>
+                        <input type="{{ type }}" required name="value">
+                        <b class="tooltip tooltip-top-right">{{ tooltip }}</b>
+                    </label>
+                </section>
+            </fieldset>
+            <footer>
+                <button type="submit" class="btn btn-success pull-right">Proceed with Survey</button>
+            </footer>
+        </form>
+        <!-- /login form -->
+    </div>
+
+</div>
+{% endblock %}
+

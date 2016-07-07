@@ -1,0 +1,35 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
+</head>
+<body>
+<div style="text-align: center; margin-top: 15%; color: #468847">
+    <img src="{{ STATIC_URL }}images/loading-spinner-blue.gif">
+    <h1>{% trans 'Thank you for your patience, your order is being processed.' %}</h1>
+    <img src="{{ STATIC_URL }}smarty/images/cc/ppcom.svg" alt="">
+</div>
+<form name="_xclick" action="https://www.paypal.com/br/cgi-bin/webscr" method="post">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="billing@gooquest.com">
+    <input type="hidden" name="currency_code" value="BRL">
+    {% if amt_rec.transaction_type == 2 %}
+    <input type="hidden" name="item_name" value="Response {{ amt_rec.get_resplan.plan.num_of_responses }}">
+    {% else %}
+    <input type="hidden" name="item_number" value="{{ amt_rec.get_subplan.plan.name }}">
+    {% endif %}
+    <input type="hidden" name="amount" value="{{ amt_rec.amount }}">
+    <button id="btnpay" type="submit" style="display: none"><i class="fa fa-mail-forward"></i> {% trans 'Pay' %}</button>
+</form>
+<script>
+    $(document).on('ready', function() {
+        $(window).load(function () {
+            $('[name="_xclick"]').submit();
+        });
+    })
+</script>
+</body>
+</html>

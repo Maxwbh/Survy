@@ -1,0 +1,28 @@
+{% extends 'smarty/_base.html' %}
+{% load  i18n %}
+{% block top_bar %}{% endblock %}
+{% block content %}
+    <section id="slider" class="fullheight" style="height: 357px;">
+
+        <div class="display-table">
+            <div class="display-table-cell vertical-align-middle">
+                <div class="container">
+
+                    <div class="row err-404-row">
+                        <div class="text-center col-md-8 col-xs-12 col-md-offset-2">
+
+                            <h1 class="fa fa-smile-o size-100 hidden-xs text-warning"></h1>
+
+                            <h2><strong>{{ title_header }}</strong></h2>
+
+                            <p class="size-30 text-success">{{ message }}</p>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+{% endblock %}

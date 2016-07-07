@@ -1,0 +1,54 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize%}
+
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{% trans 'Edit' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form disabled id="form-mail-list" action="{% url 'mail-list:edit' mail_list.id %}" method="post" class="form">
+                      {% csrf_token %}
+                        <input type="hidden" name="continue" id="id_continue" value="0">
+                      {% bootstrap_form form %}
+                      {% buttons %}
+                      {% endbuttons %}
+                    </form>
+
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'mail-list:list' %}" role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="pull-right">
+                                <button onclick="$('#id_continue').val(1);$('#form-mail-list').submit()" class="btn btn-sm btn-info"><i class="fa fa-save"></i>{% trans 'Save and continue editing' %}</button>
+                                <button onclick="$('#form-mail-list').submit()" class="btn btn-sm btn-success"><i class="fa fa-save"></i>{% trans 'Save' %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /panel footer -->
+            </div>
+        </div>
+    </section>
+{% endblock %}

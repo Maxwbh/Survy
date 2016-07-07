@@ -1,0 +1,683 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load humanize %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% block breadcrumb %}
+    <li><a class="active" href="">{{ survey }}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-primary">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>#{{ survey.id|floatformat:"6d" }} - {{ survey }}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li class="hidden-sm">
+                            <a href="{% url 'survey:create' %}" class="btn btn-success btn-sm"><i class="fa fa-plus fa-lg"></i>{% trans 'Create' %}</a>
+                            <a href="{% url 'survey:preview' survey.id %}?showbox=1" class="btn btn-info btn-sm" target="_blank" data-toggle="tooltip" data-original-title="{% trans 'Response' %}"><i class="fa fa-link fa-pencil"></i>{% trans 'Response' %}</a>
+                            <a href="#" class="dropdown-toggle btn btn-warning btn-sm" data-toggle="dropdown">{% trans 'Report' %} <span class="caret"></span></a>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a href="{% url 'survey:report' survey.id %}" target="_blank"><i class="fa fa fa-file-pdf-o color-red"></i> {% trans 'Section Average with Rating' %}</a></li>
+                                <li><a href="{% url 'survey:report-pdf' survey.id %}"  target="_blank"><i class="fa fa fa-file-pdf-o color-red"></i> {% trans  'Questions with Rate'%}</a></li>
+                                <li><a data-portlet="color_status_switch" data-action="path_to_chat.php?status=away" data-method="GET" href="#label-warning"><i class="fa fa fa-file-pdf-o color-red"></i> {% trans 'Question' %}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <div class="row countTo-md text-center">
+                        {% with survey.get_totals as total %}
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-comments"></i>
+                                <span class="countTo" data-speed="1000">{{ total.questionnaires_total }}</span>
+                                <h5>{% trans 'Sections' %}</h5>
+                            </div>
+
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-check-square-o"></i>
+                                <span class="countTo" data-speed="1000">{{ total.questions_total }}</span>
+                                <h5>{% trans 'Questions' %}</h5>
+                            </div>
+
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-circle-o"></i>
+                                <span class="countTo" data-speed="1000">{{ total.responses_total }}</span>
+                                <h5>{% trans 'Responses' %}</h5>
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        <!-- FILTRO -->
+        <div class="panel panel-default">
+            <div class="panel-heading panel-heading-transparent">
+                <strong>{% trans 'Filter' %}</strong>
+            </div>
+            <div class="panel-body">
+                <form action="{% url 'survey:view' survey.id %}" method="post" id="form-send">
+                    {% csrf_token %}
+                    <input type="hidden" name="is_ajax" value="false" />
+                    <fieldset>
+                        <div class="row">
+                            <div class="form-group">
+                                <!-- REPORT TYPE -->
+                                <div class="col-sm-2">
+                                    <label>{% trans 'Report Type' %}:</label>
+                                    <select name="report_type" class="form-control pointer required">
+                                        <option value=""></option>
+                                        <option value="A"{% if report_type == 'A' %} selected=""{% endif %}>{% trans 'Analytical' %}</option>
+                                        <option value="S"{% if report_type == 'S' %} selected=""{% endif %}>{% trans 'Summary' %}</option>
+                                        <option value="T"{% if report_type == 'T' %} selected=""{% endif %}>{% trans 'Type Text' %}</option>
+                                        <option value="C"{% if report_type == 'C' %} selected=""{% endif %}>{% trans 'Comparison' %}</option>
+                                    </select>
+                                </div>
+                                <!-- CHOOSE PERIOD -->
+                                <div class="col-sm-5">
+                                    <label>{% trans 'Choose Period' %}<span class="text-danger">*</span></label>
+                                    {% trans 'From' %} <input type="text" class="form-control datepicker required" style="display: inline;width: 40%;" value="{{ form.filter_date_ini }}" name="filter_date_ini">
+                                    {% trans 'to' %} <input required type="text" class="form-control datepicker required" style="display: inline;width: 40%;" value="{{ form.filter_date_fim }}" name="filter_date_fim">
+                                </div>
+                                <!-- CHOOSE 2th PERIOD -->
+                                <div class="col-sm-5">
+                                    <label><smal>{% trans 'Choose Period 2th' %}</smal><span class="text-danger">*</span></label>
+                                    {% trans 'From' %} <input type="text" class="form-control datepicker required" style="display: inline;width: 40%;" value="{{ form.filter_compare_ini|default_if_none:"" }}" id="dpd1" name="filter_compare_ini"{% if report_type != 'C' %} disabled{% endif %}>
+                                    {% trans 'to' %} <input type="text" class="form-control datepicker required" style="display: inline;width: 40%;" value="{{ form.filter_compare_fim|default_if_none:"" }}" id="dpd2" name="filter_compare_fim" {% if report_type != 'C' %} disabled{% endif %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <!-- GENDER -->
+                                <div class="col-sm-2">
+                                    <label>{% trans 'Choose Gender' %}</label>
+                                    <select class="selectpicker show-tick form-control" data-live-search="false" name="filter_gender">
+                                        <option value="B">{% trans 'Both' %}</option>
+                                        <option value="M"{% if form.filter_gender == 'M'%} selected{% endif %}>{% trans 'Male' %}</option>
+                                        <option value="F"{% if form.filter_gender == 'F'%} selected{% endif %}>{% trans 'Female' %}</option>
+                                    </select>
+                                </div>
+                                <!-- AGE -->
+                                <div class="col-sm-5">
+                                    <label>{% trans 'Choose Age' %}</label>
+                                    <select class="form-control select2" name="filter_age" multiple="multiple">
+                                        <option value="">{% trans 'Age' %}</option>
+                                        <optgroup label="Group Age">
+                                            {% for age in group_age %}
+                                            <option value="{{ age }}"{% if age in form.filter_age %} selected{% endif %}>{{ age }}</option>
+                                            {% endfor %}
+                                            <option value="+80">+80</option>
+                                        </optgroup>
+                                        <optgroup label="Individual Age">
+                                            {% for age in individual_age %}
+                                            <option value="{{ age }}"{% if age in form.filter_age %} selected{% endif %}>{{ age }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <!-- NATIONALITY -->
+                                <div class="col-sm-5">
+                                    <label>{% trans 'Choose Nationality' %}</label>
+                                    <select class="form-control select2" multiple="multiple" name="filter_nationality">
+                                    {% for l in lang %}
+                                        <option value="{{ l.iso }}"{% if l.iso in form.filter_nationality %} selected{% endif %}>{{ l }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <!-- GROUPS -->
+                                <div class="col-sm-12">
+                                    <label>{% trans 'Choose Groups (Contact)' %}</label>
+                                    <select class="form-control select2" multiple="multiple" name="filter_groups">
+                                    {% for contact in contacts %}
+                                        <option value="{{ contact.list.id }}">{{ contact.list.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <!-- SECTION -->
+                                <div class="col-sm-6">
+                                    <label>{% trans 'Choose Section' %}</label>
+                                    <select class="form-control" multiple="multiple" name="filter_sections">
+                                    {% for questionnaire in survey.questionnaire_set.all %}
+                                        <option value="{{ questionnaire.id }}"{% if questionnaire.is in form.filter_sections %} selected{% endif %}>{{ questionnaire }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- QUESTIONS -->
+                                <div class="col-sm-6">
+                                    <label>{% trans 'Choose Question' %}</label>
+                                    <select class="form-control" multiple="multiple" name="filter_questions">
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <!-- OPTION -->
+                                <div class="col-sm-6">
+                                    <label>{% trans 'Choose Option' %}</label>
+                                    <select class="form-control select2" multiple="multiple" name="filter_values">
+                                    {% for questionnaire in survey.questionnaire_set.all %}
+                                        {% for question in questionnaire.question_set.all %}
+                                            {% for type in question.type_set.all %}
+                                                {% if type.type == 'radioButtonRow' %}
+                                                {% for value in type.values_set.all %}
+                                                    <option value="{{ value.id }}">{{ value }}</option>
+                                                {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- NUMBER -->
+                                <div class="col-sm-6">
+                                    <label>{% trans 'Choose Number' %}</label>
+                                    <select class="form-control select2" multiple="multiple" name="filter_numbers">
+                                    {% for number in numbers %}
+                                        <option value="{{ number }}"{% if number in form.filter_numbers %} selected{% endif %}>{{ number }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                    <input type="hidden" value="report" name="action" id="action"/>
+                            </div>
+                            <div class="col-sm-12">
+                                <hr>
+                                <button onclick="$('#action').val('report')" type="submit" class="btn btn-success fa fa-filter"> {% trans 'Send Filter' %}</button>
+                                <button onclick="$('#action').val('print')" type="submit" class="btn btn-info fa fa-print"> {% trans 'Print' %}</button>
+                                <button onclick="$('#action').val('export')" type="submit" class="btn btn-info fa fa-file-excel-o"> {% trans 'Export' %}</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        <!-- QUESTIONÁRIOS -->
+        <div id="print-report">
+        {% block questionario %}
+        {% if show %}
+        <div id="goto"></div>
+        {% for questionnaire in survey.questionnaire_set.all %}
+            <div id="panel-ui-tan-qt{{ questionnaire.id }}" class="panel panel-info">
+                <div class="panel-heading">
+                    <span class="elipsis">
+                        <!-- panel title -->
+                            <strong>Q.{{ forloop.counter|floatformat:"02d" }} - {{ questionnaire }}</strong>
+                    </span>
+
+                    <ul class="options pull-right list-inline">
+                        <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom"
+                               data-original-title="Colapse"></a></li>
+                        <li><a href="#" class="opt panel_fullscreen hidden-xs" data-toggle="tooltip" title=""
+                               data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand"></i></a>
+                        </li>
+                    </ul>
+                    <!-- /right options -->
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                {% for question in questionnaire.question_set.all %}
+                <div id="panel-misc-portlet-qq{{ question.id }}" class="panel panel-clean">
+                    <div class="panel-heading">
+
+                        <span class="elipsis"><!-- panel title -->
+                            <strong>{{ question }}</strong>
+                        </span>
+
+                        <!-- right options -->
+                        <ul class="options pull-right list-inline">
+                            <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Colapse"></a></li>
+                        </ul>
+                    </div>
+
+                    <!-- panel content -->
+                    <div class="panel-body" style="display: block;">
+                        {% for type in question.type_set.all %}
+                            {% with type.get_response as types %}
+                            {% if type.type in 'textAreaRow,textAnsRow' %}
+                                {% if types.count == 0 %}
+                                    {% trans 'no values' %}
+                                {% else %}
+                                    <div class="row">
+                                    <ul class="bullet-list list-unstyled">
+                                    {% for value in types.values %}
+                                        <div class="col-md-6">
+                                            <li class="green">
+                                                <h3>{{ value.texto }}</h3>
+                                            </li>
+                                        </div>
+                                    {% endfor %}
+                                    </ul>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="col-md-5">
+                                    <div class="scroll">
+                                        <table class="table table-condensed table-striped table-hover">
+                                            <thead>
+                                            <tr>
+                                                <td><strong>Activity</strong></td>
+                                                <td class="text-center"><strong>Answers</strong></td>
+                                                <td class="text-center"><strong>Relative Answer</strong></td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if types.count == 0 %}
+                                                    no values
+                                                {% else %}
+                                                    {% for value in type.get_response.values %}
+                                                        <tr>
+                                                            <td>{{ value.texto }}</td>
+                                                            <td class="text-center">{{ value.total }}</td>
+                                                            <td class="text-center">{{ value.porcento|intcomma|floatformat:2 }}%</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {% if types.score %}
+                                                    <tr>
+                                                        <td></td>
+                                                        <td><span class="pull-right"><h3>Score</h3></span></td>
+                                                        <td><span class="pull-right"><h3>{{ types.score|floatformat:2 }}</h3></span>
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div id="container-{{ question.id }}" style="min-width: 200px; height: 300px; max-width: 400px; margin: 0 auto"></div>
+                                </div>
+                            {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- /panel content -->
+                </div>
+            </div>
+        {% endfor %}
+        {% endif %}
+        {% endblock %}
+        </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="text/javascript" src="{{ STATIC_URL }}form.step/js/parsley.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.slimscroll.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/rgbcolor.js"></script>
+    <script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/canvg.js"></script>
+    <script>
+        // SELECT 2
+        var $sel2Sections = $('[name="filter_sections"]').select2();
+        var $sel2Questions = $('[name="filter_questions"]').select2({allowClear: true});
+        /* CHANGE SECTIONS */
+        $sel2Sections.on("change", function (e) {
+            var ids = $sel2Sections.val();
+            console.log("select2:open", ids);
+            $.getJSON("{% url 'survey:get-filter' %}", {filtro: 'sections', ids: ids})
+                .done(function (json) {
+                    $('[name="filter_questions"]').empty();
+                    $('[name="filter_questions"]').select2({data: json})
+                    $sel2Questions.val(null).trigger("change");
+                })
+        });
+        /* CHANGE QUESTIONS */
+        $sel2Questions.on("change", function (e) {
+            var ids = $sel2Questions.val();
+            console.log("questions", ids);
+            $.getJSON("{% url 'survey:get-filter' %}", {filtro: 'questions', ids: ids})
+                .done(function (json) {
+                    $('[name="filter_values"]').empty();
+                    $('[name="filter_values"]').select2({data: json})
+                })
+        });
+
+
+        $('.dropdown-toggle').dropdown();
+        $( "[name='report_type']" ).change(function(e) {
+            var elm = $(e.target);
+            var dtlI = $('[name=filter_compare_ini]');
+            var dtlF = $('[name=filter_compare_fim]');
+            if (elm.val() == 'C') {
+                dtlI.prop('disabled', false)
+                dtlF.prop('disabled', false)
+            } else {
+                dtlI.prop('disabled', true)
+                dtlI.val('')
+                dtlF.prop('disabled', true)
+                dtlF.val('')
+            }
+          console.log('change', elm.val())
+        });
+        {% if show %}
+        /**
+         * Sand-Signika theme for Highcharts JS
+         * @author Torstein Honsi
+         */
+
+        // Load the fonts
+        Highcharts.createElement('link', {
+           href: '//fonts.googleapis.com/css?family=Signika:400,700',
+           rel: 'stylesheet',
+           type: 'text/css'
+        }, null, document.getElementsByTagName('head')[0]);
+
+        // Add the background image to the container
+        Highcharts.wrap(Highcharts.Chart.prototype, 'getContainer', function (proceed) {
+           proceed.call(this);
+           this.container.style.background = 'url(http://www.highcharts.com/samples/graphics/sand.png)';
+        });
+
+
+        Highcharts.theme = {
+           colors: ["#f45b5b", "#8085e9", "#8d4654", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
+              "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
+           chart: {
+              backgroundColor: null,
+              style: {
+                 fontFamily: "Signika, serif"
+              }
+           },
+           title: {
+              style: {
+                 color: 'black',
+                 fontSize: '16px',
+                 fontWeight: 'bold'
+              }
+           },
+           subtitle: {
+              style: {
+                 color: 'black'
+              }
+           },
+           tooltip: {
+              borderWidth: 0
+           },
+           legend: {
+              itemStyle: {
+                 fontWeight: 'bold',
+                 fontSize: '13px'
+              }
+           },
+           xAxis: {
+              labels: {
+                 style: {
+                    color: '#6e6e70'
+                 }
+              }
+           },
+           yAxis: {
+              labels: {
+                 style: {
+                    color: '#6e6e70'
+                 }
+              }
+           },
+           plotOptions: {
+              series: {
+                 shadow: true
+              },
+              candlestick: {
+                 lineColor: '#404048'
+              },
+              map: {
+                 shadow: false
+              }
+           },
+
+           // Highstock specific
+           navigator: {
+              xAxis: {
+                 gridLineColor: '#D0D0D8'
+              }
+           },
+           rangeSelector: {
+              buttonTheme: {
+                 fill: 'white',
+                 stroke: '#C0C0C8',
+                 'stroke-width': 1,
+                 states: {
+                    select: {
+                       fill: '#D0D0D8'
+                    }
+                 }
+              }
+           },
+           scrollbar: {
+              trackBorderColor: '#C0C0C8'
+           },
+
+           // General
+           background2: '#E0E0E8'
+
+        };
+
+        // Apply the theme
+        Highcharts.setOptions(Highcharts.theme);
+        {% for type in graph %}
+            {% if type.type in 'radioButtonRow' %}
+                // GRAFICO ANALITICO
+                {% if report_type == 'A' %}
+                    $(function () {
+                        // Create the chart
+                        $('#container-{{ type.question.id }}').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            xAxis: {
+                                type: 'category'
+                            },
+                            yAxis: {
+                                title: {
+                                    text: ''
+                                }
+                            },
+                            legend: {
+                                enabled: false
+                            },
+                            plotOptions: {
+                                series: {
+                                    borderWidth: 0,
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '{point.y}'
+                                    }
+                                }
+                            },
+
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                            },
+
+                            series: [{
+                                name: "Brands",
+                                colorByPoint: true,
+                                data: [{% for value in type.get_response.values %}{ name: '{{ value.texto }}', y: {{ value.total|intcomma }}},
+                                {% endfor %}
+                                    ]
+                            }],
+                        });
+                    });
+                {% else %}
+                    $(function () {
+                        // Create the chart
+                        var chart = new $('#container-{{ type.question.id }}').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            xAxis: {
+                                type: 'category'
+                            },
+                            yAxis: {
+                                title: {
+                                    text: ''
+                                }
+                            },
+                            legend: {
+                                enabled: false
+                            },
+                            plotOptions: {
+                                series: {
+                                    borderWidth: 0,
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '{point.y}'
+                                    }
+                                }
+                            },
+
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.y:.2f}%</b>'
+                            },
+
+                            series: [{
+                                colorByPoint: true,
+                                // NOVO
+                                data: [
+                                    {% with type.get_response as responses %}
+                                        {% for response in responses.values %}
+                                            {% for key, value in response.items %}
+                                                { name: '{{ key }}', y: {{ value.total|intcomma }}},
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endwith %}]
+                            }, {
+                                colorByPoint: true,
+                                // NOVO
+                                data: [
+                                    {% with type.get_response as responses %}
+                                        {% for response in responses.values %}
+                                            {% for key, value in response.items %}
+                                                { name: '{{ key }}', y: {{ value.total2|intcomma }}},
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endwith %}]
+                            }],
+                        });
+                        console.log('CHART C', chart)
+                    });
+                {% endif %}
+            {% else %}
+                {% if report_type == 'A' %}
+                    $(function () {
+                        var chart = new $('#container-{{ type.question.id }}').highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: false,
+                                        format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    },
+                                    showInLegend: true
+                                }
+                            },
+                            series: [{
+                                name: 'Brands',
+                                colorByPoint: true,
+                                data: [{% for value in type.get_response.values %}{ name: '{{ value.texto }}', y: {{ value.total|intcomma }}},
+                                {% endfor %}
+                                    ]
+                            }]
+                        });
+                    });
+                {% else %}
+                    $(function () {
+                        var chart = new $('#container-{{ type.question.id }}').highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: false,
+                                        format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    },
+                                    showInLegend: true
+                                }
+                            },
+                            series: [{
+                                colorByPoint: true,
+                                size: '100%',
+                                data: [
+                                    {% with type.get_response as responses %}
+                                        {% for response in responses.values %}
+                                            {% for key, value in response.items %}
+                                                { name: '{{ key }}', y: {{ value.total|intcomma }}},
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endwith %}],
+                            }, {
+                                colorByPoint: true,
+                                size: '60%',
+                                data: [
+                                    {% with type.get_response as responses %}
+                                        {% for response in responses.values %}
+                                            {% for key, value in response.items %}
+                                                { name: '{{ key }}', y: {{ value.total2|intcomma }}},
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endwith %}]
+                            }],
+                        });
+                    });
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        $('.scroll').slimScroll({
+            height: '300px',
+            alwaysVisible: true
+        });
+        $.scrollTo($("#goto"), { duration: 1000});
+        {% endif %}
+    </script>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize%}
+
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{% trans 'Create' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form id="form-mail-list" action="{% url 'mail-list:create' %}" method="post" class="fancy-form">
+                      {% csrf_token %}
+                      {% bootstrap_form form %}
+                    </form>
+
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'mail-list:list' %}"
+                               role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="pull-right">
+                                <button onclick="$('#form-mail-list').submit()" class="btn btn-sm btn-success"><i
+                                        class="fa fa-save"></i>{% trans 'Save' %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /panel footer -->
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+<script>
+    $('#id_type').on('change', function() {
+        var tipo = $(this).val()
+        var text_editor = $('.note-editor');
+        var lbl_text_editor = $('[for="id_body"]');
+        if (tipo == '1') {
+            text_editor.addClass('hide');
+            lbl_text_editor.addClass('hide');
+        } else {
+            text_editor.removeClass('hide');
+            lbl_text_editor.removeClass('hide');
+        }
+    })
+    window.onload = function () {
+        $('#id_type').change()
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize %}
+
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{% trans 'View' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body" aria-disabled="true">
+                    <form disabled id="form-mail-list" action="{% url 'mail-list:edit' mail_list.id %}" method="post"
+                          class="form">
+                        {% csrf_token %}
+                        <input type="hidden" name="continue" id="id_continue" value="0">
+                        {% bootstrap_form form %}
+                    </form>
+                    <!-- TABLE -->
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'mail-list:list' %}"
+                               role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="pull-right">
+                                <button onclick="$('#id_continue').val(1);$('#form-mail-list').submit()"
+                                        class="btn btn-sm btn-info"><i
+                                        class="fa fa-save"></i>{% trans 'Save and continue editing' %}</button>
+                                <button onclick="$('#form-mail-list').submit()" class="btn btn-sm btn-success"><i
+                                        class="fa fa-save"></i>{% trans 'Save' %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /panel footer -->
+            </div>
+            <div id="panel-3" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{% trans 'E-Mails' %}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li ><a onclick="loadModalEmail()" class="btn btn-info btn-xs"><i class="fa fa-plus"></i> {% trans 'Add new email in list' %}</a></li>
+                        <li class="hidden-xs">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="label label-{% if show == 'All' %}success{% else %}warning{% endif %}"><span class="fa fa-filter "></span> Filter: {{ show }} <span class="caret"></span></span></a>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a href="{% url 'mail-list:edit' mail_list.id %}"><i class="fa fa-dot-circle-o color-green"></i> {% trans 'Sow all' %}</a></li>
+                                <li><a href="{% url 'mail-list:edit' mail_list.id %}?filter=s"><i class="fa fa-dot-circle-o color-yellow"></i> {% trans 'Show Subscribes only' %}</a></li>
+                            </ul>
+                        </li>                    </ul>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'Active' %}</th>
+                            <th>{% trans 'Subscribe' %}</th>
+                            <th>{% trans 'Action' %}</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for list in list %}
+                            <tr class="odd gradeX">
+                                <td><a href="#">{{ list.title }} {{ list.name|default_if_none:"N/A" }}</a></td>
+                                <td><a href="#">{{ list.email }}</a></td>
+                                <td class="text-center">
+                                    <label class="switch switch-success switch-round">
+                                        <input id="switch-status{{ survey.id }}" type="checkbox" onchange="active('{{ list.id }}')"
+                                               {% if list.status %}checked{% endif %}>
+                                                <span class="switch-label" data-on="{% trans 'Yes' %}"
+                                                      data-off="{% trans 'No' %}"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">
+                                    <label class="switch switch-success switch-round">
+                                        <input id="switch-subscribe{{ survey.id }}" type="checkbox" onchange="subscribe('{{ list.id }}')"
+                                               {% if list.subscribe %}checked{% endif %}>
+                                                <span class="switch-label" data-on="{% trans 'Yes' %}"
+                                                      data-off="{% trans 'No' %}"></span>
+                                    </label>
+                                </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary btn-xs" title="{% trans 'Edit' %}"
+                                            onclick="loadModalEmailEdit('{{ list.id }}', '{{ list.title }}', '{{ list.name }}', '{{ list.email }}')">
+                                        <i class="fa fa-edit width-10"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs" title="{% trans 'Delete' %}"
+                                            onclick="delete_email('{{ list.id }}')"><i class="fa fa-trash width-10"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                data-original-title="{% trans 'Import CSV' %}"
+                                onclick="loadModal({{ mail_list.id }})"><i class="fa fa-file-excel-o width-10"></i>
+                        </button>
+                        <a href="{% url 'mail-list:export-csv' mail_list.id %}" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                           data-original-title="{% trans 'Export CSV' %}" {% if not list %}disabled{% endif %}><i
+                                class="fa fa-download width-10"></i></a>
+                    </div>
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+    <!-- MODAL -->
+    {% include '_modal-import.html' %}
+    {% include '_modal-email.html' %}
+{% endblock %}
+{% block extra_javascript %}
+    {% include '_js-import.html' %}
+    <script type="text/javascript">
+        if (jQuery().dataTable) {
+            var table = jQuery('#datatable_sample');
+            table.dataTable({
+                searching: false,
+                scrollY: "350px",
+                scrollCollapse: true,
+                "lengthMenu": [
+                    [5, 10, 20, -1],
+                    [5, 10, 20, "{% trans 'All' %}"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 10,
+                "pagingType": "bootstrap_full_number",
+                "language": {
+                    "lengthMenu": "  _MENU_ records",
+                    "paginate": {
+                        "previous": "Prev",
+                        "next": "Next",
+                        "last": "Last",
+                        "first": "First"
+                    }
+                },
+                "columnDefs": [{  // set default column settings
+                    'orderable': false,
+                    'targets': [0]
+                }, {
+                    "searchable": false,
+                    'orderable': false,
+                    "targets": [0]
+                }],
+                //"order": [
+                //    [1, "asc"]
+                //] // set first column as a default sort by asc
+            });
+
+            var tableWrapper = jQuery('#datatable_sample_wrapper');
+
+
+            //tableWrapper.find('.dataTables_length select').removeClass("form-control"); // modify table per page dropdown
+            tableWrapper.find('.dataTables_length').remove()
+
+        };
+        function enableBody(tipo) {
+            console.log('typoe', tipo)
+            var text_editor = $('.note-editor');
+            var lbl_text_editor = $('[for="id_body"]');
+            if (tipo == '1') {
+                text_editor.addClass('hide');
+                lbl_text_editor.addClass('hide');
+            } else {
+                text_editor.removeClass('hide');
+                lbl_text_editor.removeClass('hide');
+            }
+        };
+        window.onload = function () {
+            enableBody('{{ mail_list.type }}')
+        };
+        function loadModalEmail() {
+            $('#idModalTitle').text('{% trans 'Add e-mail to list' %}');
+            $('#action').val('add-email');
+            $('#email-id').val('');
+            $('#title').val('');
+            $('#name').val('');
+            $("#email").val('');
+            $("#modal_email").modal();
+        };
+        function loadModalEmailEdit(id, title, name, email) {
+            $('#idModalTitle').text('{% trans 'Edit e-mail to list' %}');
+            $('#action').val('email-edit');
+            $('#email-id').val(id);
+            $('#title').val(title);
+            $('#name').val(name);
+            $("#email").val(email);
+            $("#modal_email").modal();
+        };
+        function subscribe(id) {
+            Dajaxice.apps.mailinglist.subscribe(Dajax.process, {'lid': id});
+        }
+        function active(id) {
+            Dajaxice.apps.mailinglist.active(Dajax.process, {'lid': id});
+        }
+        function delete_email(id) {
+            Dajaxice.apps.mailinglist.delete(Dajax.process, {'lid': id});
+        }
+    </script>
+{% endblock %}

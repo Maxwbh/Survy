@@ -1,0 +1,113 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block panel_stylesheets %}
+    <!-- CSS DATATABLE -->
+    <link href="{{ STATIC_URL }}smarty/css/layout-datatables.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:campaign' %}">{% trans 'Respondent' %}</a></li>
+    <li class="active">{{ title }}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li class="hidden-xs">
+                            <a href="{% url 'mail-list:send' %}" class="btn btn-primary btn-xs"><i
+                                    class="fa fa-plus"></i>{% trans 'Create' %}</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Emails' %}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for campaign in campaigns %}
+                            <tr class="odd gradeX">
+                                <td><a href="{{ campaign.get_absolute_url }}">{{ campaign.name }}</a></td>
+                                <td class="text-center">{{ campaign.timestamp|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td class="text-center">{{ campaign.respondent_set.all.count }}</td>
+                                <td class="text-center"><a href="{{ campaign.get_absolute_url }}" class="btn btn-primary btn-sm"><i class="fa fa-eye width-10"></i></a> </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
+<!-- JS DATATABLE -->
+{% block extra_javascript %}
+    <script type="text/javascript">
+        function copyToClipboard(text) {
+            url = window.location.protocol + '//' + window.location.host + text
+            window.prompt("Copy to clipboard: Ctrl+C, Enter", url);
+          }
+        // DATATABLES
+        if (jQuery().dataTable) {
+            var table = jQuery('#datatable_sample');
+            table.dataTable({
+
+                "lengthMenu": [
+                    [5, 10, 20, -1],
+                    [5, 10, 20, "{% trans 'All' %}"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 10,
+                "pagingType": "bootstrap_full_number",
+                "language": {
+                    "lengthMenu": "  _MENU_ records",
+                    "paginate": {
+                        "previous": "Prev",
+                        "next": "Next",
+                        "last": "Last",
+                        "first": "First"
+                    }
+                },
+                "columnDefs": [{  // set default column settings
+                    'orderable': false,
+                    'targets': [0]
+                }, {
+                    "searchable": false,
+                    'orderable': false,
+                    "targets": [1]
+                }],
+                "order": [
+                    [1, "asc"]
+                ] // set first column as a default sort by asc
+            });
+
+            var tableWrapper = jQuery('#datatable_sample_wrapper');
+
+
+            tableWrapper.find('.dataTables_length select').addClass("form-control input-xsmall input-inline"); // modify table per page dropdown
+
+        };
+    </script>
+{% endblock %}

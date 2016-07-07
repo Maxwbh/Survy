@@ -1,0 +1,210 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize%}
+
+{% block breadcrumb %}
+    <li class="active">{% trans 'Edit' %}</li>
+{% endblock %}
+
+{% block panel_stylesheets %}
+    <link href="{{ STATIC_URL }}jquery-bar-rating/themes/fontawesome-stars.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form id="form-survey" action="{% url 'survey:edit' survey.id %}" method="post" class="form" enctype=multipart/form-data>
+                        {% csrf_token %}
+                        <input type="hidden" value="0" name="continue" id="id-continue">
+                        {% bootstrap_form form %}
+                    </form>
+                </div>
+                <!-- /panel content -->
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'survey:list' %}" role="button"> {% trans 'Cancel' %}</a>
+                            <button onclick="$('#form-survey').submit()" type="submit" class="btn btn-success btn-sm  fa fa-save">
+                              {% trans 'Save' %}
+                            </button>
+                            <button onclick="$('#id-continue').val(1);$('#form-survey').submit()" type="submit" class="btn btn-info btn-sm  fa fa-undo">
+                              {% trans 'Save and continue editting' %}
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pull-right">
+                                <a class="btn btn-warning btn-sm fa fa-plus" href="{% url 'questionnaire:create' survey.id %}" role="button"> {% trans 'New Section' %}</a>
+                                <a href="{% url 'survey:preview' survey.id %}?showbox=1" class="btn btn-primary btn-sm" target="_blank" data-toggle="tooltip" data-original-title="{% trans 'Response' %}"><i class="fa fa-link width-10"></i> Response</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="nestable_list_3_output" class="form-control margin-bottom10"></textarea>
+            </div>
+
+        {% for questionnaire in survey.questionnaire_set.all %}
+            <div id="div-questionaire-{{ questionnaire.id }}" class="panel panel-warning">
+                <div class="panel-heading">
+
+                <span class="elipsis">
+                    <!-- panel title -->
+                    <div class="btn-group " role="group" style="padding-right: 10px">
+                      <a href="{% url 'questionnaire:move' 'up' questionnaire.id %}" style="border-width: 1px" type="button" class="btn btn-default btn-sm fa fa-chevron-up"></a>
+                      <a href="{% url 'questionnaire:move' 'down' questionnaire.id %}" style="border-width: 1px" type="button" class="btn btn-default btn-sm fa fa-chevron-down"></a>
+                    </div>
+                    <strong>Q.{{ forloop.counter|floatformat:"02d" }}
+                        <a href="#" data-type="text" data-pk="{{ questionnaire.pk }}" data-title="{% trans 'Enter Section name' %}">{{ questionnaire }}</a>
+                    </strong>
+                </span>
+
+                <div class="pull-right">
+                    <label class="switch switch switch-round switch-success  nopadding">
+                        <input id="switch-{{ questionnaire.id }}" type="checkbox" {% if questionnaire.status %}checked{% endif %}>
+                        <span class="switch-label" data-on="ON" data-off="OFF"></span>
+                    </label>
+                </div>
+                <!-- /right options -->
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form class="fancy-form">
+                    <div class="dd" data-id="{{ questionnaire.id }}" id="nestable-{{ questionnaire.id }}">
+                        <ol class="dd-list">
+                        {% for question in questionnaire.question_set.all %}
+                        <li class="dd-item dd3-item" data-id="{{ question.id }}" data-order="{{ question.order }}">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="form-group dd3-content" id="div-question-{{ question.id }}">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <label for="input-{{ question.id }}" class="control-label">{% if question.required %}<span class="text-danger">{{ question }}</span>{% else %}{{ question }}{% endif %}</label>
+                                    </div>
+                                    {% with question.type_set.all as types %}
+                                        {% if types %}
+                                            {% for type in types %}
+                                            <div class="col-sm-6 fancy-form">
+                                                {{ type.render_field|safe }}
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="col-sm-6 fancy-form text-center">
+                                                <label class="text-danger">Erro to render Field</label>
+                                                <label class="text-info">Type has not been created</label>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="col-sm-3">
+                                        <div class="btn-group pull-right" role="group">
+                                            <a href="{% url 'questionnaire:question-edit' question.id %}" type="button" style="border-width: 1px"
+                                               class="btn btn-default btn-sm text-primary"><i class="fa fa-edit width-10"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" onclick="deleteQuestion({{ question.id }}, '{{ question }}')" style="border-width: 1px"
+                                               class="btn btn-default btn-sm text-danger"><i class="fa fa-remove width-10"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                        </ol>
+                    </div>
+                    </form>
+                </div>
+                <div class="panel-footer">
+                    <a href="{% url 'questionnaire:question-add' questionnaire.id %}" class="btn btn-sm btn-success">
+                        <i class="fa fa-plus-circle"></i> {% trans 'Add New Question' %}</a>
+                </div>
+                <!-- /panel content -->
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_javascript %}
+<script type="text/javascript" src="{{ STATIC_URL }}jquery-bar-rating/jquery.barrating.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-checkbox/bootstrap-checkbox.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/nestable/jquery.nestable.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+
+<script>
+    $("[data-name='star-rating']").barrating({
+        theme: 'fontawesome-stars',
+        showSelectedRating: true,
+        initialRating: 0
+    });
+    $("[data-name='sexrow']").checkboxpicker();
+    function deleteQuestion(id, name) {
+        swal({
+            title: "{% trans 'Are you sure?' %}",
+            text: 'Question #' + id + ' - ' + name,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: true
+        }, function () {
+            Dajaxice.apps.survey.delete_question(Dajax.process, {'qid': id});
+        });
+    };
+
+    if(jQuery().nestable) {
+
+        var updateOutput = function (e) {
+            var list = e.length ? e : $(e.target);
+            if (window.JSON) {
+                var data = list.nestable('serialize');
+                var elm = $(e.target);
+                console.log('elm', elm.length, data.length)
+                if (data.length > 0 & elm.length > 0 ){
+                    elm.block({
+                        message: '<i class="fa fa-spinner fa-pulse fa-3x fa-fw margin-bottom"></i>',
+                        css: { padding: '20px' }
+                    });
+                    Dajaxice.apps.survey.change_question_order(
+                            Dajax.process, {
+                                'qid': elm.data('id'), 'data': data
+                            }
+                    );
+                }
+            } else {
+                output.val('JSON browser support required for this demo.');
+            }
+        };
+
+        jQuery('.dd').nestable({
+            group: 0,
+            dropCallback: function(details) {
+                console.log('detalhes', details.sourceId);
+            }
+        }).on('change', updateOutput);
+
+        updateOutput(jQuery('.dd').data('output', jQuery('#nestable_list_3_output')));
+    }
+    $.fn.editable.defaults.mode = 'inline';
+    $('[data-type="text"]').editable({
+        url: '{% url 'questionnaire:section-save' %}',
+        title: 'Enter username',
+        ajaxOptions: {
+            type: 'post'
+        },
+        validate: function(value) {
+            if($.trim(value) == '') {
+                return 'This field is required';
+            }
+        }
+    });
+
+</script>
+{% endblock %}

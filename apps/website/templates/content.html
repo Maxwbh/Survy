@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% block heading %}
+<div class="banner banner-in">
+    <div class="container">
+        <div class="col-md-12 banner-matter-in">
+            <h1>{{ content  }}</h1>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Step 3: Preview</h4>
+                <hr class="topzero"/>
+                {{ content.content|safe }}
+            </div>
+        </div>
+    </div>
+    <br><br>
+{% endblock %}

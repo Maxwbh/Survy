@@ -1,0 +1,121 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block extra_stylesheets %}
+    <link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/vendor.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/formbuilder.css"/>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .content {
+            background-color: #444;
+            font-family: sans-serif;
+        }
+
+        .fb-main {
+            background-color: #fff;
+            border-radius: 5px;
+            min-height: 600px;
+        }
+
+        {#      input[type=text] {#}
+        {#        height: 26px;#}
+        {#        margin-bottom: 3px;#}
+        {#      }#}
+        {##}
+        {#      select {#}
+        {#        margin-bottom: 5px;#}
+        {#        font-size: 40px;#}
+        {#      }#}
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="active">{% trans 'Edit' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <form method="get" action="#" class="fancy-form">
+                        <i class="fa fa-edit"></i>
+                        <input type="tel" class="form-control" value={{ questionnaire }}>
+
+                        <!-- tooltip - optional, bootstrap tooltip can be used instead -->
+                        <span class="fancy-tooltip top-left"> <!-- positions: .top-left | .top-right -->
+                            <em>{% trans 'Questionnaire Name' %}</em>
+                        </span>
+                    </form>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+
+                    <div class="content">
+
+                        <div class="containner">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class='fb-main'></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <a href="{% url 'survey:view' questionnaire.survey_id %}" class="btn btn-primary"><span
+                            class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_javascript %}
+    <script src="{{ STATIC_URL }}js/vendor.js"></script>
+    <script src="{{ STATIC_URL }}js/formbuilder.js"></script>
+    <script>
+        $(function () {
+            var fb = new Formbuilder({
+                selector: '.fb-main',
+                bootstrapData: {{ questionnaire.parse_fields|safe }}
+            });
+
+            fb.on('save', function (payload) {
+                $.ajax({
+                    url: '{% url 'questionnaire:save' %}',
+                    type: 'POST',
+                    data: {
+                        'payload': payload,
+                        'qid': {{ questionnaire.id }}
+                    },
+                    success: function (data) {
+                        console.log('success', payload);
+                    },
+                    error: function (data) {
+                        console.log('error')
+                    },
+                    complete: function (data) {
+                        console.log('complete');
+                    }
+                });
+            });
+            fb.on('change'), function(p) {
+                console.log('change', p)
+            }
+        });
+    </script>
+{% endblock %}

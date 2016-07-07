@@ -1,0 +1,214 @@
+{% extends 'congratulations.html' %}
+{% load i18n humanize %}
+{% block extra_stylesheets %}
+<link href="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" />
+<link href="{{ STATIC_URL }}flag-icon-css/css/flag-icon.min.css" rel="stylesheet" />
+    <style>
+    .flag-wrapper {
+    width: 100%;
+    display: inline-block;
+    position: relative;
+    box-shadow: 0 0 2px black;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="page-header page-header-xs">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <!-- select2 -->
+                    <form id="form-lang" method="post">
+                        <label style="display: inline-block;">{% trans 'Select language' %}&nbsp;&nbsp;<img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"></label>
+                        <div class="fancy-form fancy-form-select">
+                            {% csrf_token %}
+                            <select class="form-control select2" name="language" id="sel-language" onchange="$('#form-lang').submit()">
+                                {% for language in languages %}
+                                <option style="background-image:url({{ STATIC_URL }}smarty/images/flags/{{ language.code }}.png);" value="{{ language.id }}" {% if language.id == survey.tr_language_id %}selected{% endif %}>{{ language }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="fancy-arrow-double"></i>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-4">
+                    <a href="{% url 'survey:list' %}" class="btn btn-success pull-right"><i class="fa fa-arrow-left"></i> {% trans 'Back' %}</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="content" class="padding-40" style="background-color: #F3F3F3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-12 margin-bottom-10">
+                                    <!-- TRANSLATE SURVEY -->
+                                    {% with survey.get_language_text as language_text %}
+                                    <h6 class="nomargin">{% trans 'Survey Title' %}</h6>
+                                    <h3 class="nomargin text-primary">{{ survey }}</h3>
+                                    <h3 class="nomargin"><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a data-survey="true" href="#" id="survey_name;survey_id;1;{{ survey.id }}" data-type="text" data-pk="{% if language_text %}{{ language_text.id }}{% else %}0{% endif %}" data-title="{% trans 'Survey Name' %}" data-xeditable="true">{% if language_text.survey_name %}{{ language_text.survey_name }}{% endif %}</a></h3>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="nomargin">{% trans 'Survey Description' %}</h6>
+                                    <span class="font-lato weight-300 size-18 hidden-xs  text-primary">{{ survey.description }}</span>
+                                    <br><span class="font-lato weight-300 size-18 hidden-xs"><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a data-survey="true"  href="#" id="survey_descp;survey_id;1;{{ survey.id }}" data-type="text" data-pk="{% if language_text %}{{ language_text.id }}{% else %}0{% endif %}" data-title="{% trans 'Survey Description' %}" data-xeditable="true">{% if language_text.survey_descp %}{{ language_text.survey_descp }}{% endif %}</a></span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="nomargin">{% trans 'Survey Custom Message' %}</h6>
+                                    <span class="font-lato weight-300 size-18 hidden-xs text-primary">{{ survey.custommsg }}</span>
+                                    <br><span class="font-lato weight-300 size-18 hidden-xs"><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a data-survey="true"  href="#" id="question_custommsg;survey_id;1;{{ survey.id }}" data-type="text" data-pk="{% if language_text %}{{ language_text.id }}{% else %}0{% endif %}" data-title="{% trans 'Survey Custom Message' %}" data-xeditable="true">{% if language_text.question_custommsg %}{{ language_text.question_custommsg }}{% endif %}</a></span>
+                                </div>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% for questionnaire in survey.questionnaire_set.all %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12 text-left">
+                                <h4 class="text-primary"><strong>{{ questionnaire.name }}</strong></h4>
+                                <!-- TRANSLATE QUESTIONNAIRE -->
+                                {% with questionnaire.get_language_text as language_text %}
+                                <h4><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a href="#" id="questionaire_text;questionaire_id;2;{{ questionnaire.id }}" data-type="text" data-pk="{% if language_text %}{{ language_text.id }}{% else %}0{% endif %}" data-title="{% trans 'Questionaire Title' %}" data-xeditable="true">{% if language_text.questionaire_text %}{{ language_text.questionaire_text }}{% endif %}</a></h4>
+                                {% endwith %}
+                            </div>
+                            <hr class="col-sm-12">
+                        </div>
+
+                        <ul class="list-unstyled">
+                            {% for question in questionnaire.question_set.all %}
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <strong class="text-primary">{{ question.text }}</strong><br>
+                                        <!-- TRANSLATE QUESTION -->
+                                        {% with question.get_language_text as language_text %}
+                                        <strong><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a href="#" id="question_text;question_id;3;{{ question.id }}" data-type="text" data-pk="{% if language_text %}{{ language_text.id }}{% else %}0{% endif %}" data-title="{% trans 'Question Title' %}" data-xeditable="true">{% if language_text.question_text %}{{ language_text.question_text }}{% endif %}</a></strong>
+                                        {% endwith %}
+
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <table class="table table-striped table-hover">
+                                            <tbody>
+                                                {% for value in question.get_type.get_languages_text %}
+                                                <tr {% if forloop.first %}style="border-top: 2px solid white"{% endif %}>
+                                                    <th scope="row" width="50%">
+                                                        {% if value.is_trans %}
+                                                            <strong class="text-primary">{{ value.texto }}</strong>
+                                                        {% else %}
+                                                            <span class="label label-warning">{{ value.texto }}</span>
+                                                        {% endif %}
+                                                    </th>
+                                                    <td width="50%">
+                                                        {% if value.is_trans %}
+                                                        <!-- TRANSLATE VALUE -->
+                                                        <strong><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang">
+                                                            <a href="#" id="{{ value.col }};{{ value.field_id }};{{ value.type_status }};{{ value.id }}" data-type="text" data-pk="{% if value.trans_id %}{{ value.trans_id }}{% else %}0{% endif %}" data-title="{% trans 'Answer Text' %}" data-xeditable="true">{% if value.trans %}{{ value.trans }}{% endif %}</a>
+                                                        </strong>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% comment %}
+                                    {% for value in question.get_type.get_languages_text %}
+                                        <div class="col-sm-6">
+                                            {% if value.is_trans %}
+                                                <strong>{{ value.id }}-{{ value.texto }}</strong>
+                                            {% else %}
+                                                <span class="label label-warning">{{ value.texto }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            {% if value.is_trans %}
+                                            <strong><img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> <a href="#" id="value:{{ questionnaire.id }}" data-type="text" data-pk="{% if value.trans_id %}{{ value.trans_id }}{% else %}0{% endif %}" data-title="{% trans 'Answer Text' %}" data-xeditable="true">{% if value.trans %}{{ value.trans }}{% endif %}</a></strong>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    {% endcomment %}
+                                    </div>
+                                    {% if not forloop.last %}<hr class="col-sm-12">{% endif %}
+                                </div>
+                                {% comment %}
+                                <li style="border-bottom: solid; border-width: 2px; border-color: #F3F3F3">
+
+                                    <div style="min-width: 50%; display: inline-block">
+                                        <strong>
+                                            {{ question.id }}-{{ question }}
+                                            <span class="text-danger">[</span> <a href="#" id="username" data-type="text" data-pk="1" data-title="Enter username" data-xeditable="true"></a><span class="text-danger">]</span>
+                                        </strong>
+                                    </div>
+                                    {% for values in question.get_values %}
+                                        * {{ values }}
+                                    {% endfor %}
+                                </li>
+                                {% endcomment %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% if forloop.last %}
+            <div class="panel-footer">
+                <a href="{% url 'survey:list' %}" class="btn btn-success"><i class="fa fa-arrow-left"></i> {% trans 'Back' %}</a><br>
+            </div>
+        {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block extra_javascript %}
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+<script>
+    $(document).ready(function() {
+        var languageID = {{ language.id }};
+        var xeditable = $('[data-xeditable="true"]').editable({
+            url: '{% url 'survey:translate-field' %}?sid={{ survey.id }}' + '&lid=' + languageID,
+            emptytext: '{% trans 'Add translation' %}',
+            //mode: 'inline',
+            placement: 'bottom',
+            ajaxOptions: {
+                type: 'get',
+            },
+            params: function(params) {  //params already contain `name`, `value` and `pk`
+                var data = {};
+                data['pk'] =  $(this).attr('data-pk');
+                data['name'] = params.name;
+                data['value'] = params.value;
+                console.log('params', params);
+                return data;
+            },
+            validate: function(value) {
+                if($.trim(value) == '') {
+                    return 'This field is required';
+                }
+            },
+            success: function(response, newValue) {
+                console.log(response, newValue, this);
+                if(response.status == 0) {
+                    return response.msg; //msg will be shown in editable form
+                } else {
+                    if ($(this).attr('data-survey') == 'true') {
+                        $('[data-survey="true"]').attr('data-pk', response.pk)
+                    } else {
+                        $(this).attr('data-pk', response.pk);
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block breadcrumb %}
+    <li><a class="active" href="#">{% trans 'Report' %}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <div style="background-color: #F1F2F7">
+        {% include '_report.html' %}
+        <div class="panel panel-default text-right">
+            <div class="panel-body">
+                <a class="btn btn-success" href="{% url 'survey:report-print' survey.id %}" target="_blank"><i class="fa fa-print"></i> {% trans 'PRINT' %}</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% load i18n humanize %}
+<div class="padding-20">
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <blockquote>Questions</blockquote>
+            <div class="row">
+                {% for questionnaire in survey.questionnaire_set.all %}
+                    {% for question in questionnaire.question_set.all %}
+                            {% for type in question.type_set.all %}
+                                {% with type.get_response as types %}
+                                {% if type.type in 'textAreaRow,textAnsRow' %}
+                                {% else %}
+                                    <div class="col-md-6 col-xs-7">
+                                        <h5><small>Section</small> {{ type.question.questionnaire }}</h5>
+                                        <strong>Q.{{ forloop.parentloop.counter|stringformat:".02d" }}</strong>
+                                        <p><strong>&bullet; {{ type.question }}</strong></p>
+                                    </div>
+                                    <div class="col-md-6 col-xs-5">
+                                        <div class="scroll">
+
+                                            <table class="table table-condensed table-striped table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <td><strong>Activity</strong></td>
+                                                    <td class="text-center"><strong>Answers</strong></td>
+                                                    <td class="text-center"><strong>Relative Answer</strong></td>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% if types.count == 0 %}
+                                                        no values
+                                                    {% else %}
+                                                        {% for value in types.values %}
+                                                            <tr>
+                                                                <td>{{ value.texto }}</td>
+                                                                <td class="text-center">{{ value.total }}</td>
+                                                                <td class="text-center">{{ value.porcento|intcomma|floatformat:2 }}%</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    {% if types.score %}
+                                                        <tr>
+                                                            <td></td>
+                                                            <td><span class="pull-right"><h3>Score</h3></span></td>
+                                                            <td><span class="pull-right"><h3>{{ types.score|floatformat:2 }}</h3></span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <hr class="col-sm-12 nomargin-top">
+                                {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="panel-footer">
+            <a class="btn btn-success" href="{% url 'survey:report-print' survey.id %}" target="_blank"><i class="fa fa-print"></i> {% trans 'PRINT' %}</a>
+        </div>
+
+    </div>
+</div>
+
+
+<input type="radio" value="M" name="check[3431]" required="true" data-parsley-group="group_3431" data-parsley-errors-container="#checkbox-errors-3431">
+<input type="radio" value="M" name="check[3435]" required="true" data-parsley-group="group_3435" data-parsley-errors-container="#checkbox-errors-3435">
+
+<input type="radio" value="F" name="check[3431]" data-parsley-group="group_3431" data-parsley-errors-container="#checkbox-errors-3431">
+<input type="radio" value="F" name="check[3435]" data-parsley-group="group_3435" data-parsley-errors-container="#checkbox-errors-3435">

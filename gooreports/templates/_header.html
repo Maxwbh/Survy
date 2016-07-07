@@ -1,0 +1,38 @@
+{% load i18n %}
+<div class="container">
+    <div class="logo">
+        <a href="{% url 'website:home' %}"><img src="{{ MEDIA_URL }}{{ website.config.logo }}" alt=""></a>
+    </div>
+    <div class="top-nav" >
+        <span class="menu"><img src="{{ STATIC_URL }}images/menu.png" alt=""> </span>
+        <ul role="tablist">
+            <li{% if active_menu == 0 %} class="active"{% endif %}><a href="{% url 'website:home' %}">HOME</a></li>
+            {% for menu in website.config.get_contents %}
+            <li{% if active_menu == menu.id %} class="active"{% endif %}><a href="{{ menu.get_absolute_url }}" >{{ menu }}</a></li>
+            {% endfor %}
+            {% if user.is_authenticated %}
+            <li role="presentation" class="dropdown">
+                <a id="drop5" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    {% trans 'Account' %}&nbsp;<span class="caret"></span>
+                </a>
+                <ul id="menu2" class="dropdown-menu" aria-labelledby="drop5">
+                    <li class="dropdown-header">{% trans 'Survey actions' %}</li>
+                    <li {% if active_submenu == 'survey' %} class="active"{% endif %}><a href="{% url 'survey:list' %}"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> {% trans 'Manage Surveys' %}</a></li>
+                    <li {% if active_submenu == 'report' %} class="active"{% endif %}><a href="{% url 'website:report' %}"><span class="glyphicon glyphicon-print" aria-hidden="true"></span> {% trans 'Reports' %}</a></li>
+                    <li class="dropdown-header">{% trans 'User account' %}</li>
+                    <li><a href="{% url 'website:logout' %}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span> {% trans 'Logout' %}</a></li>
+                </ul>
+            </li>
+
+            {% endif %}
+        </ul>
+        <!--script-->
+        <script type="text/javascript">
+            $("span.menu").click(function(){
+                $(".top-nav ul").slideToggle(500, function(){
+                });
+            });
+        </script>
+    </div>
+    <div class="clearfix"> </div>
+</div>

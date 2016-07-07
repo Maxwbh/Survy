@@ -1,0 +1,13 @@
+{% extends 'smarty/_base.html' %}
+{% load i18n %}
+
+{% block main_wrapper %}
+    <div id="wrapper">
+    {% include '_report.html' %}
+    </div>
+{% endblock %}
+{% block extra_javascript %}
+    <script>
+        window.print()
+    </script>
+{% endblock %}

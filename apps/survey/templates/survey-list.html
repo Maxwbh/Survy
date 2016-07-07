@@ -1,0 +1,226 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block panel_stylesheets %}
+    <!-- CSS DATATABLE -->
+    <link href="{{ STATIC_URL }}smarty/css/layout-datatables.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="#">{% trans 'List' %}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li class="hidden-xs">
+                            <a href="{% url 'survey:create' %}" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i>{% trans 'Create New Survey' %}</a>
+                        </li>
+                        <!--li class="hidden-xs">
+                            <a href="#" class="btn btn-default btn-xs dropdown-toggle text-warning" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-dot-circle-o color-yellow"></i> {% trans 'All' %} <span class="caret"></span></a>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a data-portlet="color_status_switch" data-action="path_to_chat.php?status=online" data-method="GET" href="#label-success"><i class="fa fa-dot-circle-o color-green"></i> {% trans 'Active' %}</a></li>
+                                <li><a data-portlet="color_status_switch" data-action="path_to_chat.php?status=busy" data-method="GET" href="#label-danger"><i class="fa fa-dot-circle-o color-red"></i> {% trans 'Inactive' %}</a></li>
+                                <li><a data-portlet="color_status_switch" data-action="path_to_chat.php?status=away" data-method="GET" href="#label-warning"><i class="fa fa-dot-circle-o color-yellow"></i> {% trans 'All' %}</a></li>
+                            </ul>
+                        </li-->
+                    </ul>
+                    <!-- /right options -->
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Response' %}</th>
+                            <th>{% trans 'Active' %}</th>
+                            <th>{% trans 'Actions' %}</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for survey in surveys %}
+                        <tr class="odd gradeX">
+                            <td><a href="{% url 'survey:view' survey.id%}">{{ survey }}</a></td>
+                            <td>
+                                {{ survey.timestamp|date:"SHORT_DATE_FORMAT"  }}
+                            </td>
+                            <td class="text-center">
+                                {{ survey.get_totals.responses_total }}
+                            </td>
+                            <td class="text-center">
+                                <label class="switch switch-success switch-round">
+                                    <input id="switch-{{ survey.id }}" type="checkbox" {% if survey.status %}checked{% endif %}>
+                                    <span class="switch-label" data-on="{% trans 'Yes' %}" data-off="{% trans 'No' %}"></span>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group" aria-label="...">
+                                    <a href="{% url 'survey:view' survey.id %}" class="btn btn-primary btn-sm" data-toggle="tooltip" data-original-title="{% trans 'View Reports' %}"><i class="fa fa-pie-chart width-10" ></i></a>
+                                    <a href="{% url 'survey:edit' survey.id %}" class="btn btn-primary btn-sm" targe data-toggle="tooltip" data-original-title="{% trans 'Edit' %}"><i class="fa fa-edit width-10" ></i></a>
+                                    <a data-href="{% url 'survey:translate' survey.id %}" class="btn btn-primary btn-sm" data-translate="true" data-toggle="tooltip" data-original-title="{% trans 'Translate' %}"><i class="fa fa-language width-10" ></i></a>
+                                    {% comment %}
+                                    <a href="{% url 'survey:report-pdf' survey.id %}" class="btn btn-primary btn-sm" target="_blank" data-toggle="tooltip" data-original-title="{% trans 'PDF' %}"><i class="fa fa-print width-10" ></i></a>
+                                    {% endcomment %}
+                                    <a href="{% url 'survey:respondent-list' survey.id %}" class="btn btn-primary btn-sm" data-toggle="tooltip" data-original-title="{% trans 'Respondent list' %}"><i class="fa fa-list-ol width-10"></i></a>
+                                    <a href="{% url 'survey:preview' survey.id %}?showbox=1" class="btn btn-primary btn-sm" target="_blank" data-toggle="tooltip" data-original-title="{% trans 'Response' %}"><i class="fa fa-link width-10"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+    <div id="trans-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Translate Survey</h4>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="form-lang" method="post" class="fancy-form" action="#" onsubmit="return validateModal()">
+                        <label>{% trans 'Select language' %}</label>
+                        <div class="fancy-form fancy-form-select">
+                            {% csrf_token %}
+                            <select class="form-control" name="language" id="sel-language" required>
+                                <option value="0">--- Select ---</option>
+                                {% for language in languages %}
+                                <option value="{{ language.id }}" {% if language.id == survey.language_id %}selected{% endif %}>{{ language }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="fancy-arrow-double"></i>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="$('#form-lang').submit()">Continue</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+<!-- JS DATATABLE -->
+{% block extra_javascript %}
+    <script type="text/javascript">
+        function validateModal() {
+            var lang = $('#sel-language');
+            var x = lang.val();
+            if (x == null || x == "0") {
+                lang.addClass('error');
+                alert("Select language");
+
+                return false;
+            }
+        }
+        jQuery("[data-translate='true']").bind("click", function (e) {
+            var href = $(this).attr('data-href');
+            $('#form-lang').attr('action', href);
+
+            $('#trans-modal').modal('show');
+
+            console.log('translate', href);
+        });
+        loadScript(plugin_path + "datatables/js/jquery.dataTables.min.js", function () {
+            loadScript(plugin_path + "datatables/dataTables.bootstrap.js", function () {
+
+                if (jQuery().dataTable) {
+
+                    var table = jQuery('#datatable_sample');
+                    table.dataTable({
+                        "columns": [{
+                            "orderable": true
+                        }, {
+                            "orderable": false
+                        }, {
+                            "orderable": true
+                        }, {
+                            "orderable": false
+                        }, {
+                            "orderable": false
+                        }],
+                        "lengthMenu": [
+                            [5, 10, 20, -1],
+                            [5, 10, 20, "{% trans 'All' %}"] // change per page values here
+                        ],
+                        // set the initial value
+                        "pageLength": 10,
+                        "pagingType": "bootstrap_full_number",
+                        "language": {
+                            "lengthMenu": "  _MENU_ records",
+                            "paginate": {
+                                "previous": "Prev",
+                                "next": "Next",
+                                "last": "Last",
+                                "first": "First"
+                            }
+                        },
+                        "columnDefs": [{  // set default column settings
+                            'orderable': false,
+                            'targets': [0]
+                        }, {
+                            "searchable": false,
+                            "targets": [0]
+                        }],
+                        "order": [
+                            [1, "desc"]
+                        ] // set first column as a default sort by asc
+                    });
+
+                    var tableWrapper = jQuery('#datatable_sample_wrapper');
+
+                    table.find('.group-checkable').change(function () {
+                        var set = jQuery(this).attr("data-set");
+                        var checked = jQuery(this).is(":checked");
+                        jQuery(set).each(function () {
+                            if (checked) {
+                                jQuery(this).attr("checked", true);
+                                jQuery(this).parents('tr').addClass("active");
+                            } else {
+                                jQuery(this).attr("checked", false);
+                                jQuery(this).parents('tr').removeClass("active");
+                            }
+                        });
+                        jQuery.uniform.update(set);
+                    });
+
+                    table.on('change', 'tbody tr .checkboxes', function () {
+                        jQuery(this).parents('tr').toggleClass("active");
+                    });
+
+                    tableWrapper.find('.dataTables_length select').addClass("form-control input-xsmall input-inline"); // modify table per page dropdown
+
+                }
+
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,82 @@
+<html>
+
+<style>
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+        border-color: #aabcfe;
+        border: none;
+    }
+
+    .tg td {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        padding: 5px 5px;
+        border-style: solid;
+        border-width: 0px;
+        border-bottom-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #aabcfe;
+        color: #669;
+    }
+
+    .tg th {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        padding: 5px 0px;
+        border-style: solid;
+        border-width: 0px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #aabcfe;
+        color: #039;
+        background-color: #b9c9fe;
+    }
+
+    .tg .tg-yw4l {
+        vertical-align: middle;
+    }
+
+@page {
+  margin: 1cm;
+  margin-bottom: 2.5cm;
+  @frame footer {
+    -pdf-frame-content: footerContent;
+    bottom: 1cm;
+    margin-left: 1cm;
+    margin-right: 1cm;
+    height: 1cm;
+  }
+}
+</style>
+
+<body>
+    <table class="tg">
+        <tr>
+            <th class="tg-yw4l" colspan="2">Section Average with Rating - <b>{{ survey }}</b></th>
+        </tr>
+        {% for questionnaire in survey.questionnaire_set.all %}
+            {% for question in questionnaire.question_set.all %}
+                {% for type in question.type_set.all %}
+                    {% if type.type in 'radioButtonRow' %}
+                        <tr>
+                            <td class="tg-yw4l">{{ type.question }}</td>
+                            <td class="tg-yw4l">
+                                Score: {{ type.get_media.score|floatformat:2 }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+  <div id="footerContent">
+    This is a footer on page #<pdf:pagenumber>
+  </div>
+</body>
+
+</html>

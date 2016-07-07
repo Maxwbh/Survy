@@ -1,0 +1,21 @@
+{% load i18n %}
+<div id="panel-ui-tan-l5" class="panel panel-default">
+
+    <div class="panel-heading">
+        <span class="elipsis"><!-- panel title -->
+            <strong>{% trans 'Partner' %}</strong>
+        </span>
+    </div>
+    <!-- panel content -->
+    <div class="panel-body">
+
+        <ul class="side-nav list-group margin-bottom30">
+            <li class="list-group-item {% ifequal active_menu 'Dashboard' %}active{% endifequal %}"><a href="{% url 'partner:index' %}"><i class="fa fa-home"></i> {% trans 'Home' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Salesman' %}active{% endifequal %}"><a href="{% url 'partner:salesman' %}"><i class="fa fa-users"></i> {% trans 'Salesman' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Customer' %}active{% endifequal %}"><a href="{% url 'partner:customer' %}"><i class="fa fa-briefcase"></i> {% trans 'Customer' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Profile' %}active{% endifequal %}"><a href="{% url 'partner:profile' %}"><i class="fa fa-user"></i> {% trans 'Profile' %}</a></li>
+        </ul>
+
+    </div>
+    <!-- /panel content -->
+</div>

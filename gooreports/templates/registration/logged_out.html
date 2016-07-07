@@ -1,0 +1,27 @@
+{% extends 'smarty/_base.html' %}
+{% load i18n %}
+{% block section %}
+<section class="page-header page-header-xs">
+    <div class="container">
+        <h1>{% trans 'Log out'|upper %}</h1>
+        <span class="font-lato size-18 weight-300 hidden-xs">{% trans 'The current session was closed' %}</span>
+        <!-- breadcrumbs -->
+        <ol class="breadcrumb">
+            <li><a href="#">{% trans 'Home' %}</a></li>
+            <li><a href="#">{% trans 'Accounts' %}</a></li>
+            <li class="active">{% trans 'Log out' %}</li>
+        </ol><!-- /breadcrumbs -->
+    </div>
+</section>
+<!-- -->
+<section class="padding-xlg">
+    <div class="container">
+
+        <h2>{% trans "Thanks for spending some quality time with the Web site today." %}</h2>
+        {% with website.config.title as  title%}
+        <a class="size-20 font-lato" href="{% url 'website:home' %}"><i class="glyphicon glyphicon-menu-left margin-right-10 size-16"></i>{% blocktrans %}Back to {{ title }} homepage now{% endblocktrans %}!</a>
+        {% endwith %}
+    </div>
+</section>
+<!-- / -->
+{% endblock %}

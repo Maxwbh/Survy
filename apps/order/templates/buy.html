@@ -1,0 +1,115 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block panel_right %}
+    <div class="heading-title heading-dotted text-center">
+        <h2>{% trans 'Response Order Plan' %}</h2>
+    </div>
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-1" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="title elipsis">
+                        <strong>{% trans 'Your Order Details' %}</strong>
+                    </span>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="callout alert alert-success margin-top-20">
+                                <div class="row">
+                                    <div class="col-md-8 col-sm-8"><!-- left text -->
+                                        <h4>{% trans 'Purchase' %} <strong>{{ amt_rec.ref_plan.num_of_responses }}</strong> {% trans 'Response plan' %}</h4>
+                                    </div><!-- /left text -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="toggle-content" style="display: block;">
+                                <hr>
+                                <span class="clearfix">
+                                    <span class="pull-right size-20 text-danger"><strong>{{ amt_rec.amount }} &euro;</strong></span>
+                                    <strong class="pull-left">TOTAL:</strong>
+                                </span>
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer text-center">
+                    <div class="row">
+                        <div class="col-sm-6 text-center">
+                            <img src="{{ STATIC_URL }}smarty/images/cc/ppcom.svg" alt="PayPal" style="max-height: 30px" class="margin-bottom-10">
+                            <a onclick="window.location = '{% url 'survey:dashboard' %}'" target="_blank" href="{% url 'order:pay' amt_rec.id %}" class="btn btn-info btn-block"><i class="fa fa-mail-forward"></i> {% trans 'Proceed to Pay' %}</a>
+                        </div>
+                        <div class="col-sm-6 text-center">
+                            <img src="{{ STATIC_URL }}smarty/images/cc/bank_transfer.png" alt="BankTransfer" style="max-height: 30px" class="margin-bottom-10">
+                            <a href="javascript:void(0)" data-toggle="modal" data-target="#modal-paid" class="btn btn-success btn-block"><i class="fa fa-mail-forward"></i> {% trans 'Proceed to Pay' %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Small Modal >-->
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modal-paid">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- header modal -->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="mySmallModalLabel"><i class="fa fa-bank"></i> {% trans 'BANK TRANSFER DETAILS' %}</h4>
+                </div>
+
+                <!-- body modal -->
+                <div class="modal-body" style="background-color: #F1F2F7">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="text-left">
+                                <h4><strong>National Bank of Greece (ETHNIKI TRAPEZA ELLADOS)</strong></h4>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td class="noborder-top"><strong>{% trans 'Beneficiary' %}</strong></td>
+                                        <td class="noborder-top text-primary"><strong>ED COMPANY OE</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noborder-top"><strong>{% trans 'Account Number' %}</strong></td>
+                                        <td class="noborder-top text-primary"><strong>258/447042-77</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noborder-top"><strong>{% trans 'IBAN' %}</strong></td>
+                                        <td class="noborder-top text-primary"><strong>GR16 0110 2580 0000 2584 4704 277</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noborder-top"><strong>{% trans 'SWIFT - BIC' %}</strong></td>
+                                        <td class="noborder-top text-primary"><strong>ETHNGRAA</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noborder-top"><strong>{% trans 'Amount' %}</strong></td>
+                                        <td class="noborder-top text-danger"><strong>{{ amt_rec.amount }} &euro;</strong></td>
+                                    </tr>
+                                </table>
+                                <div class="alert alert-mini alert-warning"><!-- WARNING -->
+                                    <strong>Note</strong> <small>At The Next Page,you will able to print the Order with the Transaction Number. This number, you must include it inside the Bank transfer invoice, as Subject (justification sending).</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <img src="{{ STATIC_URL }}smarty/images/cc/bank_transfer.png" alt="BankTransfer" style="max-height: 40px" class="pull-left">
+                        </div>
+                        <div class="col-sm-8">
+                            <button type="button" class="btn btn-danger fa fa-remove" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"> {% trans 'Cancel' %}</span></button>
+                            <a onclick="window.location = '{% url 'survey:dashboard' %}'" target="_blank" href="{% url 'order:transfer' amt_rec.id %}" type="button" class="btn btn-success fa fa-check"> {% trans 'Confirm' %}</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

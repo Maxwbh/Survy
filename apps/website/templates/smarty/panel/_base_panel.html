@@ -1,0 +1,64 @@
+{% extends 'smarty/_base.html' %}
+{% load i18n %}
+{% block extra_stylesheets %}
+<link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+<link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+<link href="{{ STATIC_URL }}smarty/css/layout-nestable.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+    <!-- /PAGE HEADER -->
+    <section class="page-header page-header-xs">
+        <div class="container">
+            <h1>{{ active_menu }}</h1>
+            <span class="font-lato weight-300 size-18 hidden-xs">{{ title }}</span>
+            <!-- breadcrumbs -->
+            {% block bread %}
+            <ol class="breadcrumb">
+                <li><a href="{% url 'website:home' %}">{% trans 'Home' %}</a></li>
+                {% block breadcrumb_top %}
+                    <li><a href="{% url 'survey:list' %}">{% trans 'Survey' %}</a></li>
+                {% endblock %}
+                {% block breadcrumb %}
+                    <li><a class="active" href="#">{{ title }}</a></li>
+                {% endblock breadcrumb %}
+            </ol>
+            <!-- /breadcrumbs -->
+            {% endblock %}
+        </div>
+    </section>
+    <!-- /PAGE HEADER -->
+    <section class="padding-xxs">
+        <div class="container">
+            {% block center %}
+            <!-- LEFT -->
+            <div class="{% block nav_panel_col %}col-lg-3 col-md-3 col-sm-4 dark{% endblock %}">
+                {% block nav_panel %}
+                    {% include 'smarty/panel/nav_panel_dark.html' %}
+                {% endblock %}
+            </div>
+            <!--|LEFT|-->
+
+            <!-- RIGHT -->
+            <div class="{% block panel_right_col %}col-lg-9 col-md-9 col-sm-8{% endblock %}">
+                {% block panel_right %} {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+    </section>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-filestyle.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/nestable/jquery.nestable.js"></script>
+    {% include 'smarty/admin/_javascripts.html' %}
+    <script>
+        $('.dd').nestable();
+        function enablePopover() {
+            $('[rel=popover]').popover({ html : true });
+            $('#form-send').validate();
+        }
+        window.onload = enablePopover;
+    </script>
+{% endblock %}
+{% block jsgraph %}
+{% endblock %}

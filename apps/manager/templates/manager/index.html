@@ -1,0 +1,28 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block panel_stylesheets %}
+    <link href="{{ STATIC_URL }}smarty/css/layout-datatables.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block nav_panel %}
+    {% include 'smarty/panel/nav_panel.html' %}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li><a class="active" href="#">{% trans 'List' %}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div class="row">
+                <!-- CUSTOMER PAYMENT(BANK TRANSFER) REQUEST -->
+                <div class="col-md-12">
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

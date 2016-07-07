@@ -1,0 +1,72 @@
+{% load i18n %}
+<aside id="aside">
+    <nav id="sideNav">
+        <!-- MAIN MENU -->
+        <ul class="nav nav-list">
+            <!-- DASHBOARD -->
+            <li class="active el_primary" id="el_0">
+                <a class="dashboard" href="{% url 'survey:dashboard' %}">
+                    <!-- warning - url used by default by ajax (if eneabled) -->
+                    <i class="main-icon fa fa-dashboard"></i> <span>{% trans 'Dashboard' %}</span>
+                </a>
+            </li>
+            <!-- SURVEY -->
+            <li class="el_primary{% if active_menu == 'Survey' %} active{% endif %}" id="el_1">
+                <a href="{% url 'survey:list' %}">
+                    <i class="main-icon fa fa-pencil-square-o"></i>
+                    <!--span class="label label-warning pull-right">2</span-->
+                    <span>{% trans 'Survey' %}</span>
+                </a>
+            </li>
+            <!-- EMAIL SEND -->
+            <li class="el_primary{% if active_menu == 'email' %} active{% endif %}" id="el_3">
+                <a href="{% url 'mail-list:list' %}">
+                    <i class="main-icon fa fa-envelope-o"></i>
+                    <!--span class="label label-warning pull-right">2</span-->
+                    <span>{% trans 'Email List' %}</span>
+                </a>
+            </li>
+            <!-- CAMPAIGN -->
+            <li class="el_primary{% if active_menu == 'campaign' %} active{% endif %}" id="el_3">
+                <a href="{% url 'mail-list:campaign' %}">
+                    <i class="main-icon fa fa-link"></i>
+                    <!--span class="label label-warning pull-right">2</span-->
+                    <span>{% trans 'Campaign' %}</span>
+                </a>
+            </li>
+            <!-- SEND EMAIL -->
+            <li class="el_primary{% if active_menu == 'send' %} active{% endif %}" id="el_3">
+                <a href="{% url 'mail-list:send' %}">
+                    <i class="main-icon fa fa-send"></i>
+                    <!--span class="label label-warning pull-right">2</span-->
+                    <span>{% trans 'Send your Survey by e-mail' %}</span>
+                </a>
+            </li>
+            <!-- SEND EMAIL -->
+        </ul>
+
+        <!-- SECOND MAIN LIST -->
+        <h3>TOOLS</h3>
+        <ul class="nav nav-list">
+            <li class="el_primary{% if active_menu == 'Tools - Create Link' %} active{% endif %}" id="el_4">
+                <a href="{% url 'survey:create-link' %}">
+                    <i class="main-icon fa fa-link"></i>
+                    <span>{% trans 'Create Survey Link' %}</span>
+                </a>
+            </li>
+            <li class="el_primary{% if active_menu == 'Protect your Surveys' %} active{% endif %}" id="el_4">
+                <a href="{% url 'mail-list:passwords' %}">
+                    <i class="main-icon fa fa-lock"></i>
+                    <span>{% trans 'Protect your Surveys' %}</span>
+                </a>
+            </li>
+            <!--li class="el_primary" id="el_7">
+                <a href="../../HTML/start.html">
+                    <i class="main-icon fa fa-link"></i>
+                    <span class="label label-danger pull-right">PRO</span> <span>Frontend</span>
+                </a>
+            </li-->
+        </ul>
+
+    </nav>
+</aside>

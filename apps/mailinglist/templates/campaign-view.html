@@ -1,0 +1,311 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize %}
+
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{% trans 'Send' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-misc-portlet-r2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- tabs nav -->
+                    <ul class="nav nav-tabs pull-left">
+                        <li class="active"><!-- TAB 1 -->
+                            <a href="#ttab1l_nobg" data-toggle="tab" aria-expanded="true"> E-mails <span class="label label-danger">{{ form.respondent_set.all.count }}</span></a>
+                        </li>
+                        <li class=""><!-- TAB 2 -->
+                            <a href="#ttab2l_nobg" data-toggle="tab" aria-expanded="false"> {% trans 'Campaign' %} </a>
+                        </li>
+                    </ul>
+                    <!-- /tabs nav -->
+
+                    &nbsp; <!-- needed if title missing . avoid using .clearfix -->
+
+                    <!-- right options -->
+                    <ul class="options pull-right list-inline">
+                        <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Colapse"></a></li>
+                    </ul>
+                    <!-- /right options -->
+
+                </div>
+
+                <!-- panel content -->
+                <div class="panel-body">
+
+                        <!-- tabs content -->
+                        <div class="tab-content transparent">
+                            <!-- /TAB 1 EMAILS -->
+                            <div id="ttab1l_nobg" class="tab-pane active"><!-- TAB 1 CONTENT -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="{% url 'mail-list:campaign-view' form.id %}?action=resend" class="btn btn-3d btn-teal btn-xlg btn-block margin-bottom-10">
+                                            <i class="fa fa-send-o fa-2x"></i>
+                                            <span class="block font-lato">{% trans 'RE-SEND YOUR SURVEY' %}</span>
+                                            <span class="block font-style-italic size-15 text-info">{% trans "Re-send Not Attempt email's" %}</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                                    <thead>
+                                    <tr>
+                                        <th>{% trans 'Email' %}</th>
+                                        <th>{% trans 'Survey' %}</th>
+                                        <th>{% trans 'Date' %}</th>
+                                        <th>{% trans 'Respondent Status' %}</th>
+                                        <th>{% trans 'Status' %}</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for respondent in form.respondent_set.all %}
+                                        <tr class="odd gradeX">
+                                            <td>{{ respondent.email }}</td>
+                                            <td class="text-center">{{ respondent.survey }}</td>
+                                            <td class="text-center">{{ respondent.date|date:"SHORT_DATE_FORMAT" }}</td>
+                                            <td class="text-center">{{ respondent.get_respondent_status_display }}</td>
+                                            <td class="text-center">
+                                                {% if respondent.mail_send_status == 2 %}
+                                                    <span class="text-danger" data-toggle="tooltip" data-original-title="{{ respondent.get_mail_send_status_display }}">
+                                                        <i class="fa fa-remove fa-lg"></i>
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-success" data-toggle="tooltip" data-original-title="{{ respondent.get_mail_send_status_display }}">
+                                                        <i class="fa fa-check fa-lg"></i>
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center" width="60px">
+                                                <div class="btn-group" role="group">
+                                                    <a class="btn btn-primary btn-xs" data-toggle="tooltip" {% if respondent.mail_send_status == 2 %}disabled{% endif %}
+                                                            data-original-title="{% trans 'Get Link' %}"
+                                                            onclick="copyToClipboard('{{ respondent.get_response_url }}')">
+                                                        <i class="fa fa-link width-10"></i>
+                                                    </a>
+                                                    <a href="{% url 'survey:view-answer' respondent.id %}" target="_blank" class="btn btn-primary btn-xs {% if respondent.respondent_status == 1 %}disabled{% endif %}" data-toggle="tooltip" data-original-title="{% trans 'View Answers' %}"><i class="fa fa-eye width-10" ></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <a href="{{ form.get_absolute_url }}" class="btn btn-3d btn-green pull-right"><i class="fa fa-refresh"></i>{% trans 'Refresh' %}</a>
+                            </div>
+                            <!-- /TAB 1 FORM -->
+                            <div id="ttab2l_nobg" class="tab-pane"><!-- TAB 2 CONTENT -->
+                                <form action="{% url 'mail-list:send' %}" method="post" id="form-send">
+                                    <fieldset>
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!--  CAMPAIGN -->
+                                                <div class="col-md-12 col-sm-12">
+                                                    <label>{% trans 'Campaign Name' %} <span class="text-danger">*</span>
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Name of your campaign' %}"
+                                                           data-original-title="{% trans 'Campaign' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input type="text" name="name" value="{{ form.name }}" class="form-control required" disabled/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!-- SURVEY -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Survey' %} <span class="text-danger">*</span>
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                       data-content="{% trans 'Select from here the Survey that you want to send.' %}"
+                                                       data-original-title="{% trans 'Survey' %}" rel="popover" data-placement="top"
+                                                       data-trigger="hover"></a>
+                                                    </label>
+                                                    <input id="id_surveu" name="survey_id" type="text" name="name" value="{{ form.survey }}" class="form-control required" disabled/>
+                                                </div>
+                                                <!-- LANGUAGE -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Language' %}
+                                                        <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Select the Language to send Survey with that Language.' %}"
+                                                           data-original-title="{% trans 'Language' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input name="language_id" type="text" name="name" value="{{ form.language }}" class="form-control required" disabled/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!-- EMAIL LIST -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'E-mail List' %} <span class="text-danger">*</span>
+                                                    <a id="popoverData" class="fa fa-question-circle" disabled
+                                                           data-content="{% trans 'Select thelist, with emails, that your already create it, and you want to send yout Survey.' %}"
+                                                           data-original-title="{% trans 'E-mail List' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input name="list_id" type="text" name="name" value="{{ form.list }}" class="form-control required" disabled/>
+                                                </div>
+                                                <!-- CUSTOM MESSAGE -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Custom Message' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Select Custom Message.' %}"
+                                                           data-original-title="{% trans 'Custom Message' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input id="id_custom_message" name="custom_message_id" value="{{ form.custom_message }}" class="form-control required" disabled/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!--  MESSAGE -->
+                                                <div class="col-md-12 col-sm-12">
+                                                    <label>{% trans 'Message' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'At the last field (Personalize Message), you can post your message by e-mail that will take your client.<br>This field is a text editor where you can insert picture (via link ) to change color in background and fonts. To change the font size, etc. To handle the editor box, click on it and them hit Enter, as many hits of enter the editor making biger. Them start writing your message, change collor, make your message bold or regular, etc.' %}"
+                                                           data-original-title="{% trans 'Message' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <div class="slimscroll height-300" data-slimscroll-visible="true">{{ form.content|safe }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!-- NAME FOR MESSAGE TO SAVE -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Name for Message to save' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'If You need to save and use this message again , add name here.' %}"
+                                                           data-original-title="{% trans 'Name for Message to save' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input disabled type="text" name="custom_message_name" value="{{ form.custom_message_name }}" class="form-control">
+                                                </div>
+                                                <!-- PERSONALIZE THE LINK -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Personalize the link' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Add a text to personalize the link for your Survey.' %}"
+                                                           data-original-title="{% trans 'Personalize the link' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input disabled type="text" name="link" value="{{ form.link }}" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!-- ENTER EMAILS -->
+                                                <div class="col-md-12 col-sm-12">
+                                                    <label>{% trans 'E-mails' %}
+                                                        <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'If you don t create a list, you can add by manual your e-mails, here. <br> You can add e-mails, as many as you need. <br>You must separate, the e-mails, with coma. <br>The way that you must add the e-mails: <br> email@email.com , email1@email.com , etc' %}"
+                                                           data-original-title="{% trans 'Enter E-mails' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <div class="fancy-form">
+                                                        <textarea disabled rows="5" class="form-control" placeholder="Add Emails Separated by Comma (,) example : mail@mail.com , mail1.mail.com , etc">{{ form.list.email_set.all|join:"," }}</textarea>
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <!-- EMAIL SENDER -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'E-mail sender' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Personalize your mailing, adding here Your e-mail. This is the e-mail that will apear, to the receiver.' %}"
+                                                           data-original-title="{% trans 'E-mail Sender' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input disabled type="email" name="email_sender" value="{{ form.email_sender }}" class="form-control required" aria-required="true">
+                                                </div>
+                                                <!-- SUBJECT -->
+                                                <div class="col-md-6 col-sm-6">
+                                                    <label>{% trans 'Subject' %}
+                                                    <a id="popoverData" class="fa fa-question-circle"
+                                                           data-content="{% trans 'Add Subject for your mailing. You must add Subject, otherwise your e-mail will be marked as SPAM.' %}"
+                                                           data-original-title="{% trans 'Subject' %}" rel="popover" data-placement="top"
+                                                           data-trigger="hover"></a>
+                                                    </label>
+                                                    <input disabled type="text" name="subject" value="{{ form.subject }}" class="form-control required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+
+                        </div>
+                        <!-- /tabs content -->
+
+                </div>
+                <!-- /panel content -->
+            </div>
+        </div>
+    </section>
+    <script>$('#close').click()</script>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="text/javascript">
+        function copyToClipboard(text) {
+            url = window.location.protocol + '//' + window.location.host + text
+            window.prompt("Copy to clipboard: Ctrl+C, Enter", url);
+          }
+        // DATATABLES
+        if (jQuery().dataTable) {
+            var table = jQuery('#datatable_sample');
+            table.dataTable({
+                bFilter: false,
+                bInfo: false,
+                "lengthMenu": [
+                    [5, 10, 20, -1],
+                    [5, 10, 20, "{% trans 'All' %}"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 10,
+                "pagingType": "bootstrap_full_number",
+                "language": {
+                    "lengthMenu": "  _MENU_ records",
+                    "paginate": {
+                        "previous": "Prev",
+                        "next": "Next",
+                        "last": "Last",
+                        "first": "First"
+                    }
+                },
+                "columnDefs": [{  // set default column settings
+                    'orderable': false,
+                    'targets': [0]
+                }, {
+                    "searchable": false,
+                    'orderable': false,
+                    "targets": [0]
+                }],
+                //"order": [
+                //    [1, "asc"]
+                //] // set first column as a default sort by asc
+            });
+
+            var tableWrapper = jQuery('#datatable_sample_wrapper');
+
+
+            tableWrapper.find('.dataTables_length select').addClass("form-control input-xsmall input-inline"); // modify table per page dropdown
+
+        };
+    </script>
+{% endblock %}

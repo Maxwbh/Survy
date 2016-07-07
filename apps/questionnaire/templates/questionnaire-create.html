@@ -1,0 +1,53 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 %}
+{% block extra_stylesheets %}
+    <link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans 'Questionnaire' %}</li>
+    <li class="active">{% trans 'Create' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <!-- QUESTIONNAIRE ------------------------------------------------------------>
+            <div id="panel-misc-portlet-r1" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="elipsis">
+                        <!-- panel title -->
+                        <strong>Add Section to Survey <span class="text-warning">{{ survey }}</span></strong>
+                    </span>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12 col-sm-12">
+                                <form id="form-questionnaire" action="{% url 'questionnaire:create' survey.id %}" method="post" class="form">
+                                    {% csrf_token %}
+                                    {% bootstrap_form form %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'survey:edit' survey.id %}" role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pull-right">
+                                <button onclick="$('#form-questionnaire').submit()" type="button" class="btn btn-success btn-sm fa fa-save fa-lg"> {% trans 'Save' %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

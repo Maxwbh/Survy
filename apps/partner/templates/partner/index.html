@@ -1,0 +1,43 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block panel_stylesheets %}
+    <link href="{{ STATIC_URL }}smarty/css/layout-datatables.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block bread %}{% endblock %}
+
+{% block nav_panel %}
+    {% include 'smarty/panel/nav_panel_partner.html' %}
+{% endblock %}
+
+
+
+{% block panel_right %}
+    <section class="nopadding-top padding-bottom-20">
+        <div class="row">
+            <div class="row countTo-md text-center">
+                <div class="col-xs-6 col-sm-3">
+                    <i class="fa fa-eur"></i>
+                    <span class="countTo" data-speed="1000">0</span>
+                    <h5>{% trans 'General Amount' %}</h5>
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    <i class="fa fa-check-square-o"></i>
+                    <span class="countTo" data-speed="1000">0</span>
+                    <h5>{% trans 'Total Commission' %}</h5>
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    <i class="fa fa-money text-success"></i>
+                    <span class="countTo" data-speed="1000">0</span>
+                    <h5>{% trans 'Paid Amount' %}</h5>
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    <i class="fa fa-money text-danger"></i>
+                    <span class="countTo" data-speed="1000">0</span>
+                    <h5>{% trans 'Unpaid Amount' %}</h5>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

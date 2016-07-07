@@ -1,0 +1,78 @@
+{% extends 'survey-view.html' %}
+{% load i18n humanize %}
+
+{% block questionario %}
+    <div id="goto"></div>
+    {% for questionnaire in survey.questionnaire_set.all %}
+        {% if questionnaire.text_type == True %}
+        <div id="panel-ui-tan-qt{{ questionnaire.id }}" class="panel panel-info">
+            <div class="panel-heading">
+                <span class="elipsis">
+                    <!-- panel title -->
+                    <label class="checkbox">
+                        <input type="checkbox" value="1">
+                        <i></i> <strong>Q.{{ forloop.counter|floatformat:"02d" }} - {{ questionnaire }}</strong>
+                    </label>
+                </span>
+
+                <ul class="options pull-right list-inline">
+                    <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom"
+                           data-original-title="Colapse"></a></li>
+                    <li><a href="#" class="opt panel_fullscreen hidden-xs" data-toggle="tooltip" title=""
+                           data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand"></i></a>
+                    </li>
+                </ul>
+                <!-- /right options -->
+            </div>
+            <!-- panel content -->
+            <div class="panel-body">
+            {% for question in questionnaire.question_set.all %}
+            {% if question.get_type.type in 'textAreaRow,textAnsRow' %}
+            <div id="panel-misc-portlet-qq{{ question.id }}" class="panel panel-clean">
+                <div class="panel-heading">
+
+                    <span class="elipsis"><!-- panel title -->
+                        <label class="checkbox">
+                            <input type="checkbox" value="1">
+                            <i></i> <strong>{{ question }}</strong>
+                        </label>
+                    </span>
+
+                    <!-- right options -->
+                    <ul class="options pull-right list-inline">
+                        <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Colapse"></a></li>
+                    </ul>
+                </div>
+
+                <!-- panel content -->
+                <div class="panel-body" style="display: block;">
+                    {% for type in question.type_set.all %}
+                        {% with type.get_response as types %}
+                            {% if types.count == 0 %}
+                                {% trans 'no values' %}
+                            {% else %}
+                                <div class="row">
+                                <ul class="bullet-list list-unstyled">
+                                {% for value in types.values %}
+                                    <div class="col-md-6">
+                                        <li class="green">
+                                            <h3>{{ value.texto }}</h3>
+                                        </li>
+                                    </div>
+                                {% endfor %}
+                                </ul>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            <!-- /panel content -->
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

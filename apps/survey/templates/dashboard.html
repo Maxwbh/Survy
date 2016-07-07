@@ -1,0 +1,169 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block panel_right %}
+    <section class="nopadding-top padding-bottom-20">
+        <div class="row">
+            <div class="col-sm-4">
+                <a href="#" class="btn btn-featured btn-green btn-inverse" data-toggle="modal" data-target="#modal-paid">
+                    <span>{% trans 'BUY MORE ANSWERS' %}</span>
+                    <i class="fa fa-shopping-cart"></i>
+                </a>
+            </div>
+            <div class="col-sm-4">
+                <a href="{% url 'order:pay-details' %}" class="btn btn-featured btn-yellow btn-inverse">
+                    <span>{% trans 'PAYMENTS DETAILS' %}</span>
+                    <i class="fa fa-credit-card"></i>
+                </a>
+            </div>
+            <div class="col-sm-4">
+                <a href="{% url 'customer:edit' %}" class="btn btn-featured btn-teal btn-inverse">
+                    <span>{% trans 'UPDATE YOUR INFO' %}</span>
+                    <i class="fa fa-user"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Small Modal >-->
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modal-paid">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- header modal -->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="mySmallModalLabel"><i class="fa fa-shopping-cart text-success"></i> {% trans 'BUY MORE ANSWERS' %}</h4>
+                </div>
+
+                <!-- body modal -->
+                <div class="modal-body">
+                    <div class="table-responsive nomargin">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th><i class="hidden-xs"></i> {% trans 'No. of Responses' %}</th>
+                                    <th><i class="hidden-xs"></i> {% trans 'Price in Euro' %}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for plan in plans %}
+                                <tr>
+                                    <td><span class="pull-right">{{ plan.num_of_responses }}</span></td>
+                                    <td><span class="pull-right">{{ plan.plan_cost }} &euro;</span></td>
+                                    <td class="text-center"><a href="{% url 'order:checkout' plan.id %}" type="button" class="btn btn-sm btn-success"><i class="fa fa-shopping-cart"></i> {% trans 'Buy' %}</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">{% trans 'Cancel' %}</span></button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-1" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="title elipsis">
+                        <strong>{% trans 'Survey Details' %}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li><strong>{% trans 'Total Allowed Survey' %}</strong> <span class="label label-info countTo" data-speed="1000">{{ total_survey }}</span></li>
+                    </ul>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <ul class="easypiecharts list-unstyled">
+                        <li class="clearfix">
+                            <span class="stat-number">{% trans 'Survey Remaining' %} <span class="text-warning countTo" data-speed="1000">{{ num_of_surveys }}</span></span>
+                            <span class="easyPieChart" data-percent="{{ percent|floatformat:2 }}" data-easing="easeOutBounce"
+                                  data-barColor="#F86C6B" data-trackColor="#dddddd" data-scaleColor="#dddddd"
+                                  data-size="70" data-lineWidth="6">
+                                <span class="percent"></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /PANEL -->
+            <div id="panel-1" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="title elipsis">
+                        <strong>{% trans 'Responses Details' %}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li><strong>{% trans 'Total Allowed Answers' %}</strong> <span class="label label-info countTo" data-speed="1000">39</span></li>
+                    </ul>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Survey' %}</th>
+                            <th>{% trans 'Remaining To Send' %}</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for survey in surveys %}
+                            <tr class="odd gradeX">
+                                <td><a href="{% url 'survey:view' survey.id %}">{{ survey }}</a></td>
+                                <td><span class="pull-right">?????</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+    <script>
+    if (jQuery().dataTable) {
+            var table = jQuery('#datatable_sample');
+            table.dataTable({
+
+                "lengthMenu": [
+                    [5, 10, 20, -1],
+                    [5, 10, 20, "{% trans 'All' %}"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 20,
+                "pagingType": "bootstrap_full_number",
+                "language": {
+                    "lengthMenu": "  _MENU_ records",
+                    "paginate": {
+                        "previous": "Prev",
+                        "next": "Next",
+                        "last": "Last",
+                        "first": "First"
+                    }
+                },
+                "columnDefs": [{  // set default column settings
+                    'orderable': false,
+                    'targets': [0]
+                }, {
+                    "searchable": false,
+                    'orderable': false,
+                    "targets": [1]
+                }],
+                "order": [
+                    [1, "asc"]
+                ] // set first column as a default sort by asc
+            });
+
+            var tableWrapper = jQuery('#datatable_sample_wrapper');
+
+            $('#datatable_sample_filter').remove();
+            tableWrapper.find('.dataTables_length select').addClass("form-control input-xsmall input-inline"); // modify table per page dropdown
+
+        };
+    </script>
+{% endblock %}

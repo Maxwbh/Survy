@@ -1,0 +1,26 @@
+{% load i18n %}
+<div id="panel-ui-tan-l5" class="panel panel-default">
+
+    <div class="panel-heading">
+        <span class="elipsis"><!-- panel title -->
+            <strong>{% trans 'Partner' %}</strong>
+        </span>
+    </div>
+    <!-- panel content -->
+    <div class="panel-body">
+
+        <ul class="side-nav list-group margin-bottom30">
+            <li class="list-group-item {% ifequal active_menu 'Dashboard' %}active{% endifequal %}"><a href="{% url 'manager:index' %}"><i class="fa fa-home"></i> {% trans 'Home' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Partner' %}active{% endifequal %}"><a href="{% url 'manager:partner' %}"><i class="fa fa-users"></i> {% trans 'Partner' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Customer' %}active{% endifequal %}"><a href="{% url 'manager:customer' %}"><i class="fa fa-briefcase"></i> {% trans 'Customer' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Plan' %}active{% endifequal %}"><a href="{% url 'manager:plan' %}"><i class="fa fa-share-square"></i> {% trans 'Price' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Response Plan' %}active{% endifequal %}"><a href="{% url 'manager:response-plan' %}"><i class="fa fa-share-square-o"></i> {% trans 'Response Plan' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Bank Details' %}active{% endifequal %}"><a href="{% url 'manager:bank-details' %}"><i class="fa fa-bank"></i> {% trans 'Bank Details' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Customer Payment Request' %}active{% endifequal %}"><a href="{% url 'manager:payment-request' %}"><i class="fa fa-money"></i> {% trans 'Customer Payment Request' %}</a></li>
+            <li class="list-group-item {% ifequal active_menu 'Payment Details' %}active{% endifequal %}"><a href="{% url 'manager:payment-details' %}"><i class="fa fa-shopping-cart"></i> {% trans 'Payment Details' %}</a></li>
+        </ul>
+
+    </div>
+    <!-- /panel content -->
+
+</div>

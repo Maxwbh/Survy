@@ -1,0 +1,47 @@
+{% load i18n %}
+<div id="modal_email" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- header modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="idModalTitle"></h4>
+            </div>
+
+            <!-- body modal -->
+            <div class="modal-body">
+                <form class="form-inline" id="form-add-email" method="post" action="{% url 'mail-list:edit' mail_list.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="action" name="action" value="add-email">
+                    <input type="hidden" id="email-id" name="email-id" value="">
+                    <div class="form-group">
+                        <label for="title">{% trans 'title' %}</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="{% trans 'title' %}">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">{% trans 'name' %}</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="{% trans 'name' %}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">{% trans 'E-mail' %}</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="{% trans 'E-mail' %}" required>
+                    </div>
+                    <div class="modal-footer margin-top-20">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">{% trans 'Close' %}</button>
+                        <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Modal Footer -->
+            {% comment %}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
+                <button type="button" class="btn btn-success" onclick="$('#form-add-email').submit()">{% trans 'Save' %}</button>
+            </div>
+            {% endcomment %}
+        </div>
+    </div>
+</div>

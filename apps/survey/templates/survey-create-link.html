@@ -1,0 +1,253 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize%}
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="#">{% trans 'Create Survey Link' %}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{% trans 'Create Survey Link' %}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <div class="alert alert-success margin-bottom-30"><!-- WARNING -->
+                        <strong>{% trans 'Answer Type' %}</strong> {% trans 'Choose, one of the options bellow how you need to protect you Survey.' %}
+                    </div>
+                    <form id="form-url" method="post">
+                    {% csrf_token %}
+                    <div class="text-center margin-bottom-30">
+                        <div id="period-group" class="btn-group" data-toggle="buttons">
+                            <label class="btn btn-info">
+                                <i class="text-warning fa fa-envelope-o fa-lg"></i><input type="radio" name="type" value="MQ" id="MQ"> {% trans 'Answer By Adding Email ' %}
+                            </label>
+                            <label class="btn btn-info">
+                                <i class="text-info fa fa-unlock fa-lg"></i><input type="radio" name="type" value="Mg" id="Mg"> {% trans 'Free to Answer' %}
+                            </label>
+                            <label class="btn btn-info">
+                                <i class="text-danger fa fa-lock fa-lg"></i><input type="radio" name="type" value="Mw" id="Mw"> {% trans 'Protection With ID Password ' %}
+                            </label>
+                            <label class="btn btn-info">
+                                <i class="text-primary fa fa-users fa-lg"></i><input type="radio" name="type" value="NA" id="NA"> {% trans 'Answer by ID free choice ' %}
+                            </label>
+                        </div>
+                    </div>
+                    <!-- select2 -->
+                    <div class="fancy-form fancy-form-select">
+                        <select class="form-control" name="survey" required>
+                            <option value="">--- {% trans 'Select Survey' %} ---</option>
+                            {% for survey in surveys %}
+                            <option value="{{ survey.id }}"{% if survey.id|intcomma == sid %} selected{% endif %}>{{ survey }}</option>
+                            {% endfor %}
+                        </select>
+                        <i class="fancy-arrow"></i>
+                    </div>
+
+                    <div class="row margin-top-30">
+                        <div class="col-sm-12">
+                            <div id="panel-misc-portlet-r4" class="panel panel-default">
+                                <div class="panel-heading">
+                                    <span class="elipsis"><!-- panel title -->
+                                        <strong>{% trans 'Survey link' %}</strong>
+                                    </span>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <input type="text" id="url-id" class="form-control" value="{{ url }}">
+                                                <span class="input-group-btn">
+                                                    <button id="btn-copy" data-clipboard-target="#url-id" {% if not url %}disabled {% endif %} class="btn btn-default" type="button" data-toggle="tooltip" title="Copy Link"><i class="fa fa-clipboard"></i> </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <button {% if not url %}disabled {% endif %}class="btn btn-block btn-social btn-facebook" id="btnShare" href="{{ url }}" data-image="article-1.jpg" data-title="Article Title" data-desc="Some description for this article" class="btnShare">
+                                                <i class="fa fa-facebook"></i> Facebook</button>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <button {% if not url %}disabled {% endif %} class="btn btn-block btn-social btn-twitter" id="btnShare" href="{{ url }}" class="btnShare">
+                                                <i class="fa fa-twitter"></i> Twitter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- panel footer -->
+                                <div class="panel-footer">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="pull-lefth">
+                                                <button class="btn btn-sm btn-success"><i class="fa fa-link"></i>{% trans 'Create Survey Link & QR code' %}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /panel footer -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div id="panel-misc-portlet-r4" class="panel panel-default">
+                                <div class="panel-heading">
+                                    <span class="elipsis"><!-- panel title -->
+                                        <strong>{% trans 'QR Code' %}</strong>
+                                    </span>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <div>
+                                            <label>{% trans 'ECC' %}</label>
+                                            <select class="form-control" name="qr-ecc" id="qr-ecc" {% if url %}onchange="changeQrcode();"{% endif %}>
+                                                <option value="L"{% if qr_ecc == 'L'%} selected{% endif %}>L - smallest</option>
+                                                <option value="M"{% if qr_ecc == 'M'%} selected{% endif %}>M</option>
+                                                <option value="Q"{% if qr_ecc == 'Q'%} selected{% endif %}>Q</option>
+                                                <option value="H"{% if qr_ecc == 'H'%} selected{% endif %}>H - best</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label>{% trans 'Size' %}</label>
+                                            <select class="form-control" name="qr-size" id="qr-size" {% if url %}onchange="changeQrcode();"{% endif %}>
+                                                <option value="50x50"{% if qr_size == '50x50'%} selected{% endif %}>50x50</option>
+                                                <option value="100x100"{% if qr_size == '100x100'%} selected{% endif %}>100x100</option>
+                                                <option value="150x150"{% if qr_size == '150x150'%} selected{% endif %}>150x150</option>
+                                                <option value="200x200"{% if qr_size == '200x200'%} selected{% endif %}>200x200</option>
+                                                <option value="250x250"{% if qr_size == '250x250'%} selected{% endif %}>250x250</option>
+                                                <option value="300x300"{% if qr_size == '300x300'%} selected{% endif %}>300x300</option>
+                                                <option value="350x350"{% if qr_size == '350x350'%} selected{% endif %}>350x350</option>
+                                                <option value="400x400"{% if qr_size == '400x400'%} selected{% endif %}>400x400</option>
+                                                <option value="450x450"{% if qr_size == '450x450'%} selected{% endif %}>450x450</option>
+                                                <option value="500x500"{% if qr_size == '500x500'%} selected{% endif %}>500x500</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div id="panel-misc-portlet-r4" class="panel panel-default">
+                                <div class="panel-heading">
+                                    <span class="elipsis"><!-- panel title -->
+                                        <strong>{% trans 'QR Image' %}</strong>
+                                    </span>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="clearfix"></div>
+                                    <div class="text-center" id="div-qrcode">
+                                        {% if url %}
+                                        <img id="qr-image" class="img-thumbnail" src="http://chart.apis.google.com/chart?cht=qr&chl={{ url }}&chs={{ qr_size }}&chld={{ qr_ecc }}" alt="TECHcaffe - QR code"/>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="panel-footer">
+                                    <div class="row">
+                                        <div class="pull-right">
+                                            <button {% if url %}onclick="VoucherPrint($('#qr-image').prop('src'), 'download');"{% else %}disabled{% endif %} class="btn btn-primary btn-sm"><i class="fa fa-print"></i> {% trans 'Print' %}</button>
+                                            <button {% if url %}onclick="downloadURI($('#qr-image').prop('src'), 'download');"{% else %}disabled{% endif %} class="btn btn-info btn-sm"><i class="fa fa-image"></i> {% trans 'Save' %}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <!-- /panel content -->
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/clipboard.min.js"></script>
+<script>
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '819789888134161', status: true, cookie: true, xfbml: true
+        });
+    };
+    (function (d, debug) {
+        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+        if (d.getElementById(id)) {
+            return;
+        }
+        js = d.createElement('script');
+        js.id = id;
+        js.async = true;
+        js.src = "//connect.facebook.net/en_US/all" + (debug ? "/debug" : "") + ".js";
+        ref.parentNode.insertBefore(js, ref);
+    }(document, /*debug*/ false));
+    function postToFeed(title, desc, url, image) {
+        var obj = {
+            method: 'feed',
+            link: url,
+            picture: 'http://www.url.com/images/' + image,
+            name: title,
+            description: desc
+        };
+
+        function callback(response) {
+        }
+
+        FB.ui(obj, callback);
+    }
+    $('#btnShare').click(function () {
+        console.log('share')
+        elem = $(this);
+        postToFeed(elem.data('title'), elem.data('desc'), elem.prop('href'), elem.data('image'));
+
+        return false;
+    });
+    function changeQrcode() {
+        var ecc = $("#qr-ecc").val();
+        var size = $("#qr-size").val();
+        $('#div-qrcode').html('<img id="qr-image" class="img-thumbnail" src="http://chart.apis.google.com/chart?cht=qr&chl={{ url }}&chs=' + size + '&chld=' + ecc + '"/>')
+    }
+    $(document).on('ready', function() {
+            console.log('ready');
+            $(window).load(function(){
+                {% if rtype %}
+                    $('#{{ rtype }}').click();
+                {% else %}
+                    $('#MQ').click();
+                {% endif %}
+                // COPY
+                var clipboard = new Clipboard('#btn-copy');
+                clipboard.on('success', function(e) {
+                    _toastr("Copy: " + e.text, "top-right", "success", false);
+                    e.clearSelection();
+                });
+            });
+    })
+    function downloadURI(uri, name) {
+      var link = document.createElement("a");
+      link.download = name;
+      link.href = uri;
+      link.click();
+    }
+    function VoucherSourcetoPrint(source) {
+        return "<html><head><script>function step1(){\n" +
+                "setTimeout('step2()', 10);}\n" +
+                "function step2(){window.print();window.close()}\n" +
+                "</scri" + "pt></head><body onload='step1()'>\n" +
+                "<img src='" + source + "' /></body></html>";
+    }
+    function VoucherPrint(source) {
+        Pagelink = "about:blank";
+        var pwa = window.open(Pagelink, "_new");
+        pwa.document.open();
+        pwa.document.write(VoucherSourcetoPrint(source));
+        pwa.document.close();
+    }
+</script>
+{% endblock %}

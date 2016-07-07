@@ -1,0 +1,210 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load humanize %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% block breadcrumb %}
+    <li><a class="active" href="">{{ survey }}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-primary">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>#{{ survey.id|floatformat:"6d" }} - {{ survey }}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li class="hidden-sm">
+                            <a href="{% url 'survey:preview' survey.id %}?showbox=1" class="btn btn-info btn-sm" target="_blank" data-toggle="tooltip" data-original-title="{% trans 'Response' %}"><i class="fa fa-link fa-pencil"></i>{% trans 'Preview Response' %}</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <div class="row countTo-md text-center">
+                        {% with survey.get_totals as total %}
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-circle-o"></i>
+                                <span class="countTo" data-speed="1000">{{ total.responses_total }}</span>
+                                <h5>{% trans 'Responses' %}</h5>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-eye"></i>
+                                <span class="countTo" data-speed="1000">{{ total.questionnaires_total }}</span>
+                                <h5>{% trans 'Allowed To View' %}</h5>
+                            </div>
+
+                            <div class="col-xs-6 col-sm-4">
+                                <i class="fa fa-check-square-o"></i>
+                                <span class="countTo" data-speed="1000">{{ total.questions_total }}</span>
+                                <h5>{% trans 'Total Available Responses' %}</h5>
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <!-- FILTRO -->
+            <div class="panel panel-default">
+                <div class="panel-heading panel-heading-transparent">
+                    <strong>{% trans 'Filter' %}</strong>
+                </div>
+                <div class="panel-body">
+                    <form action="{% url 'survey:respondent-list' survey.id %}" method="get" id="form-send">
+                        {% csrf_token %}
+                        <input type="hidden" name="is_ajax" value="false" />
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- CHOOSE PERIOD -->
+                                    <div class="col-sm-12 margin-bottom-20">
+                                        <label>{% trans 'Enter Duration' %}<span class="text-danger">*</span></label>
+                                        {% trans 'From' %} <input type="text" class="form-control datepicker required" style="display: inline; width: 46%;" value="{{ data_ini }}" name="filter_date_ini">
+                                        {% trans 'to' %} <input required type="text" class="form-control datepicker required" style="display: inline; width: 46%;" value="{{ data_fim }}" name="filter_date_fim">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <!-- EMAIL ID -->
+                                    <div class="col-sm-8">
+                                        <label>{% trans 'Search by E-mail OR by ID OR password' %}</label>
+                                        <input type="text" class="form-control" name="q" value="{{ q }}"/>
+                                    </div>
+                                    <!-- LIST PER PAGE -->
+                                    <div class="col-sm-4">
+                                        <label>{% trans 'Itens per page' %}</label>
+                                        <select class="form-control" name="filter_list">
+                                            <option value="25"{% ifequal filter_list '25' %} selected{% endifequal %}>25 {% trans 'itens' %}</option>
+                                            <option value="50"{% ifequal filter_list '50' %} selected{% endifequal %}>50 {% trans 'itens' %}</option>
+                                            <option value="75"{% ifequal filter_list '75' %} selected{% endifequal %}>75 {% trans 'itens' %}</option>
+                                            <option value="100"{% ifequal filter_list '100' %} selected{% endifequal %}>100 {% trans 'itens' %}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="panel-footer clearfix">
+                    <button onclick="$('#form-send').submit()" class="btn btn-success fa fa-filter pull-right"> {% trans 'Send Filter' %}</button>
+                </div>
+            </div>
+            {% if show_paginator %}
+            <!-- RESULTADO -->
+            <div id="result" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="elipsis"><!-- panel title -->
+                        <strong>Total Response <span class="label label-info"> {{ result.paginator.count }}</span></strong>
+                    </span>
+                    <ul class="pagination pagination-sm pull-right">
+                        {% if result.has_previous %}
+                          <li><a href="?page={{ result.previous_page_number }}{{ get_url }}">&laquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><a href="#">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for num in result.paginator.page_range %}
+                          {% ifequal num result.number %}
+                            <li class="active"><a href="#">{{ num }}<span class="sr-only">(current)</span></a></li>
+                          {% else %}
+                            <li><a href="?page={{ num }}{{ get_url }}">{{ num }}</a></li>
+                          {% endifequal %}
+                        {% endfor %}
+
+                        {% if result.has_next %}
+                          <li><a href="?page={{ result.next_page_number }}{{ get_url }}">&raquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><a href="#">&raquo;</a></li>
+                        {% endif %}
+                     </ul>
+                </div>
+                <div class="panel-body"><!-- panel content -->
+                    {% if not result.paginator.count  %}
+                        No results found
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered nomargin">
+                                <thead>
+                                    <tr>
+                                        <th>E-mail ID</th>
+                                        <th>Date</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for res in result %}
+                                    <tr id="tr-id-{{ res.id }}">
+                                        <td>{{ res.email|default_if_none:"" }}</td>
+                                        <td>{{ res.date|date:"DATETIME_FORMAT" }}</td>
+                                        <td width="10%" class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'survey:view-answer' res.id %}" target="_blank" class="btn btn-info btn-xs" data-toggle="tooltip" data-original-title="{% trans 'View Answers' %}"><i class="fa fa-eye width-10" ></i></a>
+                                                <a onclick="removeRes('{{ res.id }}')" href="javascript:void(0)" class="btn btn-danger btn-xs" targe data-toggle="tooltip" data-original-title="{% trans 'Delete Response' %}"><i class="fa fa-remove width-10" ></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div><!-- /panel content -->
+                <div class="panel-footer clearfix"><!-- panel footer -->
+                    <!-- NEXT -->
+                    {% if result.has_next %}
+                      <a class="btn btn-primary pull-right btn-sm nomargin-top nomargin-bottom" href="?page={{ result.next_page_number }}{{ get_url }}">{% trans 'Next' %}</a>
+                    {% else %}
+                      <a class="btn btn-primary pull-right btn-sm nomargin-top nomargin-bottom disabled" href="#">{% trans 'Next' %}</a>
+                    {% endif %}
+                    <!-- PREV -->
+                    {% if result.has_previous %}
+                      <a class="btn btn-primary pull-right btn-sm nomargin-top nomargin-bottom" href="?page={{ result.previous_page_number }}{{ get_url }}">{% trans 'Prev' %}</a>
+                    {% else %}
+                      <a class="btn btn-primary pull-right btn-sm nomargin-top nomargin-bottom disabled" href="#">{% trans 'Prev' %}</a>
+                    {% endif %}
+                </div><!-- /panel footer -->
+            </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}
+{% if show_paginator %}{% block extra_javascript %}
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>
+    <script>
+        $.scrollTo($("#result"), { duration: 1000});
+        function removeRes(id) {
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this resgister!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function () {
+                $.getJSON('{% url 'survey:respondent-remove' %}', {id: id}, function (data, status) {
+                    if (data.status === 200) {
+                        $('#tr-id-' + id).remove();
+                        sweetAlert("Success", data.msg, "success");
+                    } else {
+                        sweetAlert("Oops...", data.msg, "error");
+                    }
+                });
+            });
+            {% comment %}
+            if (confirm("Remove respondent to list?") == true) {
+                $.getJSON('{% url 'survey:respondent-remove' %}', {id: id}, function (data, status) {
+                    console.log('>>>', data, status);
+                    if (data.status === 200) {
+                        $('#tr-id-' + id).remove();
+                        sweetAlert("Success", data.msg, "success");
+                    } else {
+                        sweetAlert("Oops...", data.msg, "error");
+                    }
+                });
+            }
+            {% endcomment %}
+        }
+    </script>
+{% endblock %}{% endif %}

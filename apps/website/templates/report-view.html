@@ -1,0 +1,156 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% block css %}
+    <style class="cp-pen-styles">
+        body {
+            background: #cccccc;
+        }
+
+        page[size="A4"] {
+            background: white;
+            width: 21cm;
+            height: 100%;
+            display: block;
+            margin: 0 auto 2cm;
+            padding: 1cm 1cm 1cm 1cm;
+            box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+        }
+
+        @media print {
+            body, page[size="A4"] {
+                margin: 0;
+                box-shadow: 0;
+            }
+        }
+    </style>
+{% endblock %}
+{% block body %}
+<page size="A4">
+    <!--- div class="row">
+        <div class="col-xs-12">
+            <div class="text-center">
+                <i class="fa fa-search-plus pull-left icon"></i>
+                <h3>{{ survey }}</h3>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-md-6 col-lg-6 pull-left">
+                    <div class="panel panel-default height">
+                        <div class="panel-heading">Billing Details</div>
+                        <div class="panel-body">
+                            <strong>David Peere:</strong><br>
+                            1111 Army Navy Drive<br>
+                            Arlington<br>
+                            VA<br>
+                            <strong>22 203</strong><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6 col-lg-6">
+                    <div class="panel panel-default height">
+                        <div class="panel-heading">Payment Information</div>
+                        <div class="panel-body">
+                            <strong>Card Name:</strong> Visa<br>
+                            <strong>Card Number:</strong> ***** 332<br>
+                            <strong>Exp Date:</strong> 09/2020<br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div --->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center">
+                <i class="fa fa-search-plus pull-left icon"></i>
+                <h3>{{ survey }}</h3>
+            </div>
+            <hr>
+            <div class="panel panel-default">
+                {% for questionnaire in survey.questionnaire_set.all %}
+                <div class="panel-heading">
+                    <h3 class="text-center"><strong>{{ questionnaire }}</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <div class="row">
+                        <containner>
+                            {% for question in questionnaire.question_set.all %}
+                            <div class="col-xs-12 col-md-6 col-lg-6 pull-left">
+                                <p class="bg-success">{{ question }}</p>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <td><strong>Activity</strong></td>
+                                            <td class="text-center"><strong>Answers</strong></td>
+                                            <td class="text-center"><strong>Relative Answer</strong></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for type in question.type_set.all %}
+                                        {% for value in type.values_set.all %}
+                                        <tr>
+                                            <td>{{ value }}</td>
+                                            <td class="text-center">{{ value.get_response_total.0 }}</td>
+                                            <td class="text-right">{{ value.get_response_total.1 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-xs-12 col-md-6 col-lg-6 pull-left">
+                                <canvas id="canvas-{{ question.id }}" height="50%" width="50%"></canvas>
+                            </div>
+                            {% endfor %}
+                        </containner>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</page>
+<page>
+
+    <script>
+        var randomScalingFactor = function () {
+            return Math.round(Math.random() * 100)
+        };
+        {% for value in values %}
+        {% if  value.0.ans.question_id %}
+        var barChartData{{ forloop.counter }} = {
+            labels: [
+            {% for v in value %}"{{ v }}",{% endfor %}
+            ],
+            datasets: [
+                {
+                    fillColor : "rgba(151,187,205,0.5)",
+                    strokeColor : "rgba(151,187,205,0.8)",
+                    highlightFill : "rgba(151,187,205,0.75)",
+                    highlightStroke : "rgba(151,187,205,1)",
+                    data: [
+                    {% for v in value %}{{ v.get_response_total.1|intcomma }},{% endfor %}
+                    ]
+                }
+            ]
+
+        }
+        {% endif %}
+        {% endfor %}
+        window.onload = function () {
+            {% for value in values %}
+                {% if  value.0.ans.question_id %}
+                var ctx = document.getElementById("canvas-{{ value.0.ans.question_id }}").getContext("2d");
+                window.myBar = new Chart(ctx).Bar(barChartData{{ forloop.counter }}, {
+                    responsive: true
+                });
+                {% endif %}
+            {% endfor %}
+        }
+
+	</script>
+</page>
+{% endblock %}

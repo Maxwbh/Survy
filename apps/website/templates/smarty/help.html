@@ -1,0 +1,119 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block bread %}{% endblock %}
+{% block center %}
+    <div id="panel-ui-tan-l2" class="panel panel-default">
+        <div class="panel-heading">
+            <span class="elipsis"><!-- panel title -->
+                <strong><i class="fa fa-question-circle"></i> {% trans 'Help Desk - Find your Aswers here' %}</strong>
+            </span>
+        </div>
+
+        <!-- panel content -->
+        <div class="panel-body">
+            <div class="row tabs nomargin">
+                <!-- tabs -->
+                <div class="col-md-3 col-sm-3 nopadding-right nopadding-left">
+                    <ul class="nav nav-tabs nav-stacked">
+                        <li class="active">
+                            <a href="#tab_a" data-toggle="tab" aria-expanded="false">
+                                <span class="badge badge-warning pull-right">3</span>
+                                {% trans 'How can I create Survey?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_b" data-toggle="tab" aria-expanded="false">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I Translate the Survey?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_c" data-toggle="tab" aria-expanded="true">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I edit Survey?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_d" data-toggle="tab" aria-expanded="true">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I create email Lists?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_e" data-toggle="tab" aria-expanded="true">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I send Surveys by e-mail?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_f" data-toggle="tab" aria-expanded="true">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I get reports?' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab_g" data-toggle="tab" aria-expanded="true">
+                                <span class="badge badge-warning pull-right">1</span>
+                                {% trans 'How can I see Results?' %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- tabs content -->
+                <div class="col-md-9 col-sm-9 nopadding-right nopadding-left">
+                    <div class="tab-content">
+                        <div id="tab_a" class="tab-pane active">
+                            <h4 class="text-primary">{% trans 'You can create New Survey, with 3 steps' %}</h4>
+                            <div class="list-group">
+                                <a href="http://www.gooreports.com/downloads/EN/CREATE-NEW-QUEST-1_EN.pdf" class="list-group-item">
+                                    <h4 class="list-group-item-heading"><i class="fa fa-file-pdf-o text-danger"></i> {% trans 'Add Title, Description, End Message and upload your Logo (200px x 200px)' %}</h4>
+                                </a>
+                                <a href="http://www.gooreports.com/downloads/EN/CREATE-NEW-QUEST-2_EN.pdf" class="list-group-item">
+                                    <h4 class="list-group-item-heading"><i class="fa fa-file-pdf-o text-danger"></i> {% trans 'Add name for Section. You can add sections as many as you need!' %}</h4>
+                                </a>
+                                <a href="http://www.gooreports.com/downloads/EN/CREATE-NEW-QUEST-3_EN.pdf" class="list-group-item">
+                                    <h4 class="list-group-item-heading"><i class="fa fa-file-pdf-o text-danger"></i> {% trans 'Create the Question and add the answers' %}</h4>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div id="tab_b" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I Translate the Survey?' %}</h4>
+                        </div>
+
+                        <div id="tab_c" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I edit Survey?' %}</h4>
+                        </div>
+
+                        <div id="tab_d" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I create email Lists?' %}</h4>
+                        </div>
+
+                        <div id="tab_e" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I send Surveys by e-mail?' %}</h4>
+                            <div class="list-group">
+                                <a href="http://www.gooreports.com/downloads/EN/SEND-E-MAIL_en.pdf" class="list-group-item">
+                                    <h4 class="list-group-item-heading"><i class="fa fa-file-pdf-o text-danger"></i> {% trans 'Information about how to send Survey by e-mail, please click on button to open the PDF instructions' %}</h4>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div id="tab_f" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I get reports?' %}</h4>
+                        </div>
+
+                        <div id="tab_g" class="tab-pane">
+                            <h4 class="text-primary">{% trans 'How can I see Results?' %}</h4>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- /panel content -->
+
+    </div>
+{% endblock %}

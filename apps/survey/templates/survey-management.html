@@ -1,0 +1,100 @@
+{% extends '_base.html' %}
+{% load i18n %}
+{% block heading %}
+<div class="banner banner-in">
+    <div class="container">
+        <div class="col-md-12 banner-matter-in">
+            <h1>{{ title  }}</h1>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="clearfix"></div><br/><br/>
+<div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th colspan="9">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for survey in surveys %}
+                            <tr>
+                                <td>{{ survey }}</td>
+                                <td>{{ survey.timestamp|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td class="text-center">
+                                    {% if survey.status %}
+                                    <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+                                    {% else %}
+                                    <span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'Fill In' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'Check Answers' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'View/PDF' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'Modify' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-danger btn-xs" role="button"> {% trans 'Deactivate' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-success btn-xs" role="button"> {% trans 'Send' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'View Reports' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'Translate' %}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-xs" role="button"> {% trans 'Mailing Reports' %}</a>
+                                </td>
+                                    <!--td>
+                                        <a href="#">Fill In</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">Check Answers</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">View/PDF</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">Modify</a>
+                                    <td>
+                                        <a href="#">Move this survey to deactivate survey</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">Send</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">View Reports</a>
+                                    </td>
+                                    <td>
+                                        <a href="#">Translate</a>
+                                    </td-->
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div><br/><br/>
+{% endblock %}

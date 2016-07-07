@@ -1,0 +1,124 @@
+{% extends 'survey-view.html' %}
+{% load i18n humanize %}
+
+{% block questionario %}
+{% for questionnaire in survey.questionnaire_set.all %}
+<div id="panel-ui-tan-qt{{ questionnaire.id }}" class="panel panel-info">
+    <div class="panel-heading">
+        <span class="elipsis">
+            <!-- panel title -->
+            <label class="checkbox">
+                <input type="checkbox" value="1">
+                <i></i> <strong>Q.{{ forloop.counter|floatformat:"02d" }} - {{ questionnaire }}</strong>
+            </label>
+        </span>
+
+        <ul class="options pull-right list-inline">
+            <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom"
+                   data-original-title="Colapse"></a></li>
+            <li><a href="#" class="opt panel_fullscreen hidden-xs" data-toggle="tooltip" title=""
+                   data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand"></i></a>
+            </li>
+        </ul>
+        <!-- /right options -->
+    </div>
+    <!-- panel content -->
+    <div class="panel-body">
+    {% for question in questionnaire.question_set.all %}
+    <div id="panel-misc-portlet-qq{{ question.id }}" class="panel panel-clean">
+        <div class="panel-heading">
+
+            <span class="elipsis"><!-- panel title -->
+                <label class="checkbox">
+                    <input type="checkbox" value="1">
+                    <i></i> <strong>{{ question }}</strong>
+                </label>
+            </span>
+
+            <!-- right options -->
+            <ul class="options pull-right list-inline">
+                <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Colapse"></a></li>
+            </ul>
+        </div>
+
+        <!-- panel content -->
+        <div class="panel-body" style="display: block;">
+            {% for type in question.type_set.all %}
+                {% if type.type in 'textAreaRow,textAnsRow' %}
+                    {% if types.count == 0 %}
+                        {% trans 'no values' %}
+                    {% else %}
+                        <div class="row">
+                        <ul class="bullet-list list-unstyled">
+                        {% for value in type.get_compare %}
+                            <div class="col-md-6">
+                                <li class="green">
+                                    <h3>{{ value.texto }}</h3>
+                                </li>
+                            </div>
+                        {% endfor %}
+                        </ul>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <span class="label label-info">{{ survey.filtro.date_range }}</span>
+                            &leftrightarrow;
+                            <span class="label label-success">{{ survey.filtro.date_compare }}</span>
+                        </div>
+                        <div class="scroll">
+                            <table class="table table-condensed table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <td><strong>Activity</strong></td>
+                                    <td class="text-center"><small>Answers</small></td>
+                                    <td class="text-center"><small>Relative</small></td>
+                                    <td class="text-center"><small>Answers</small></td>
+                                    <td class="text-center"><small>Relative</small></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% with type.get_response as responses %}
+                                    {% for response in responses.values %}
+                                        {% for key, value in response.items %}
+                                        <tr>
+                                            <td><strong>{{ key }}</strong></td>
+                                            <td class="text-center text-info" style="border-left: 1px solid #b8bcc0;">{{ value.total }}</td>
+                                            <td class="text-center text-info">{{ value.porcento|intcomma|floatformat:2 }}%</td>
+                                            <td class="text-center text-success" style="border-left: 1px solid #b8bcc0;">{{ value.total2 }}</td>
+                                            <td class="text-center text-success">{{ value.porcento2|intcomma|floatformat:2 }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% if responses.score %}
+                                    <tr>
+                                        <td colspan="1">
+                                            <h4>Score</h4>
+                                        </td>
+                                        <td colspan="2">
+                                            <h4 class="text-center text-info">{{ responses.score|floatformat:2 }}</h4>
+                                        </td>
+                                        <td colspan="2">
+                                            <h4 class="text-center text-success">{{ responses.score2|default:0|floatformat:2 }}</h4>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="container-{{ question.id }}" style="min-width: 200px; max-width: 100%; margin: 0 auto"></div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    <!-- /panel content -->
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

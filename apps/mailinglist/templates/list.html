@@ -1,0 +1,88 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block panel_stylesheets %}
+    <!-- CSS DATATABLE -->
+    <link href="{{ STATIC_URL }}smarty/css/layout-datatables.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{{ title }}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+                    <ul class="options pull-right relative list-unstyled">
+                        <li class="hidden-xs">
+                            <a href="{% url 'mail-list:create' %}" class="btn btn-primary btn-xs"><i
+                                    class="fa fa-plus"></i>{% trans 'Create' %}</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover" id="datatable_sample">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'List Name' %}</th>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Active' %}</th>
+                            <th>{% trans 'Total E-Mails' %}</th>
+                            <th>{% trans 'Actions' %}</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for list in mylist %}
+                            <tr class="odd gradeX">
+                                <td><a href="#">{{ list }}</a></td>
+                                <td>
+                                    {{ list.timestamp|date:"SHORT_DATE_FORMAT" }}
+                                </td>
+                                <td class="text-center">
+                                    <label class="switch switch-success switch-round">
+                                        <input id="switch-status{{ survey.id }}" type="checkbox"
+                                               {% if list.status %}checked{% endif %}>
+                                        <span class="switch-label" data-on="{% trans 'Yes' %}"
+                                              data-off="{% trans 'No' %}"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">
+                                    {{ list.emails }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'mail-list:edit' list.id %}" class="btn btn-primary btn-sm"
+                                           data-toggle="tooltip" data-original-title="{% trans 'Edit' %}"><i
+                                                class="fa fa-edit width-10"></i></a>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                                data-original-title="{% trans 'Import CSV' %}"
+                                                onclick="loadModal({{ list.id }})"><i class="fa fa-file-excel-o width-10"></i>
+                                        </button>
+                                        <a href="{% url 'mail-list:export-csv' list.id %}" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                           data-original-title="{% trans 'Export CSV' %}" {% if not list.emails %}disabled{% endif %}><i
+                                                class="fa fa-download width-10"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- MODAL -->
+    {% include '_modal-import.html' %}
+{% endblock %}
+<!-- JS DATATABLE -->
+{% block extra_javascript %}
+    {% include '_js-import.html' %}
+{% endblock %}

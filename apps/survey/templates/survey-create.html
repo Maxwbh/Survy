@@ -1,0 +1,56 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+{% block breadcrumb %}
+    <li><a class="active" href="#">{% trans 'Create' %}</a></li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form id="form-survey" action="{% url 'survey:create' %}" method="post" class="form" enctype=multipart/form-data>
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <label class="checkbox">
+                            <input name="personal_info" type="checkbox" value="{{ personal_info }}" {% if personal_info %}checked{% endif %}>
+                            <i></i> {% trans 'Create Personal information (Sex/Age/Nationality)' %}
+                        </label>
+                    </form>
+
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <a class="btn btn-danger btn-sm glyphicon glyphicon-remove" href="{% url 'survey:list' %}" role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pull-right">
+                                <button onclick="$('#form-survey').submit()" class="btn btn-success btn-sm glyphicon glyphicon-ok">
+                                    {% trans 'Save' %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+{% endblock %}

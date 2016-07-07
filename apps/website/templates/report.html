@@ -1,0 +1,139 @@
+{% extends '_base.html' %}
+{% load i18n %}
+{% block heading %}
+<div class="banner banner-in">
+    <div class="container">
+        <div class="col-md-12 banner-matter-in">
+            <h1>{{ title  }}</h1>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="thumbnail">
+                    <div class="graybg">
+                        <div class="clearfix"></div><br/>
+                        <form class="form-horizontal" action="{% url 'website:report' %}" method="post">
+                            {% csrf_token %}
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Select Survey <span class="text-danger">*</span></label>
+                                    <select name="survey" class="selectpicker show-tick form-control" data-live-search="true">
+                                        <option value="">{% trans 'Select one survey...' %}</option>
+                                        {% for survey in surveys %}
+                                            <option value="{{ survey.id }}">{{ survey }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Type Of Report <span class="text-danger">*</span></label>
+                                    <select class="selectpicker show-tick form-control" data-live-search="true">
+                                        <option value="">Select type of report...</option>
+                                        <option value="1">General Report</option>
+                                        <option value="2">Graphic Report</option>
+                                        <option value="3">Comparison between periods</option>
+                                        <option value="5">Text Reports</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Choose Period <span class="text-danger">*</span></label><br/>
+                                    From <input type="text" class="form-control datepicker" style="display: inline;width: 40%;" value="" id="dpd1" name="data-ini">
+                                    To <input type="text" class="form-control datepicker" style="display: inline;width: 40%;" value="" id="dpd2" name="data-fim">
+                                </div>
+                                <div class="form-group">
+                                    <label>Choose Gender</label>
+                                    <select class="selectpicker show-tick form-control" data-live-search="false">
+                                        <option value="0">{% trans 'Both' %}</option>
+                                        <option value="1">{% trans 'Male' %}</option>
+                                        <option value="2">{% trans 'Female' %}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{% trans 'Choose Age Group' %}</label><br>
+                                    <select class="form-control multiple" multiple="multiple" name="age-group">
+                                        <option value="14-19">14-19</option>
+                                        <option value="20-29">20-29</option>
+                                        <option value="30-39">30-39</option>
+                                        <option value="40-49">40-49</option>
+                                        <option value="50-59">50-59</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Choose Nationality</label><br>
+                                    <select class="form-control multiple" multiple="multiple" name="country">
+                                    {% for country in countrys %}
+                                        <option value="{{ country.iso }}">{{ country }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Choose Groups (Contact)</label><br>
+                                    <select class="form-control multiple" multiple="multiple" name="groups">
+                                    {% for contact in contacts %}
+                                        <option value="{{ contact.id }}">{{ contact }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Choose Number (Questionnaire)</label><br>
+                                    <select class="form-control multiple" multiple="multiple">
+                                    {% for questionnaire in questionnaires %}
+                                        <option value="{{ questionnaire.id }}">{{ questionnaire }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12 text-center">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                    <button type="submit" class="btn btn-primary">Export To CSV</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="clearfix"></div><br/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript">
+        var nowTemp = new Date();
+        var now = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
+
+        var checkin = $('#dpd1').datepicker({
+            onRender: function (date) {
+{#                return date.valueOf() < now.valueOf() ? 'disabled' : '';#}
+            }
+        }).on('changeDate', function (ev) {
+            if (ev.date.valueOf() > checkout.date.valueOf()) {
+                var newDate = new Date(ev.date)
+                newDate.setDate(newDate.getDate() + 1);
+                checkout.setValue(newDate);
+            }
+            checkin.hide();
+            $('#dpd2')[0].focus();
+        }).data('datepicker');
+        var checkout = $('#dpd2').datepicker({
+            onRender: function (date) {
+                return date.valueOf() <= checkin.date.valueOf() ? 'disabled' : '';
+            }
+        }).on('changeDate', function (ev) {
+            checkout.hide();
+        }).data('datepicker');
+        $('.multiple').multiselect(
+                {
+                    maxHeight: 300,
+                    buttonWidth: '90%',
+                    includeSelectAllOption: true,
+                    enableFiltering: true
+                }
+        );
+    </script>
+{% endblock %}

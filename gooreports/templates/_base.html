@@ -1,0 +1,100 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+        <title>GooQuest</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="" />
+        <!-- Styles -->
+        {% include '_stylesheet.html' %}
+        {% block css %}{% endblock %}
+        <!-- Script -->
+        {% include '_javascript.html' %}
+        {% if home %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#owl-demo1").owlCarousel({
+                    items : 1,
+                    lazyLoad : true,
+                    autoPlay : true,
+                    navigation : true,
+                    navigationText :  true,
+                    pagination : false,
+                });
+            });
+        </script>
+    {% endif %}
+    </head>
+    <body>
+    {% block body %}
+        <!--header-->
+        {% include '_header.html' %}
+        <!-- Banner ------->
+        {% block heading %}{% endblock %}
+        <!-- Content --->
+        <div class="content">
+            <div class="clearfix"></div>
+            <br><br>
+            {% block content %}{% endblock %}
+        </div>
+        <div class="clearfix"></div>
+        <!-- Footer -->
+        {% include '_footer.html' %}
+        <script type="text/javascript" charset="ISO-8859-1">
+            /* PROCESSAR MENSAGENS DO SISTEMA */
+            {% if messages %}
+                    {% for message in messages %}
+                        var title = '{{ message.tags }}';
+                        if ('{{ message.tags }}' == 'success') title = '{% trans 'Success' %}';
+                        if ('{{ message.tags }}' == 'error') title = '{% trans 'Erro' %}';
+                        new Messi("{{ message|safe }}",
+                                {
+                                    title: title,
+                                    titleClass: "anim {{ message.tags|striptags }}",
+                                    modal: true,
+                                    buttons: [{
+                                        id: 0, label: "{% trans 'Close' %}", val: "X"
+                                    }]
+                                }
+                        );
+                    {% endfor %}
+            {% endif %}
+            /* WAIT */
+            function wait(msg) {
+                if (msg == undefined) {
+                    msg = "{% trans 'Wait...' %}";
+                }
+                new Messi('<div style="font-size:large;line-height:32px; text-align:center;"><img style="float:left;" src="{{ STATIC_URL }}banner-mobile/img/loading.gif" />' + msg + '</div>');
+            }
+            /* BLOCK UI */
+            $(document).on('ready', function() {
+                $.blockUI({
+                    message: '<div><span class="text-left"><img src="{{ STATIC_URL }}images/loading-spinner-blue.gif" /></span><span class="text-right">    {% trans 'Wait...' %}</span></div>',
+                    css: {
+                        border: 'none',
+                        padding: '15px',
+                        backgroundColor: '#EEEEEE',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: .5,
+                        color: '#A3081E',
+                        'font-size': '20px'
+                    }
+                });
+                $(window).load(function(){unBlockFunction(); });
+            });
+            function unBlockFunction(){
+                $.unblockUI();
+            }
+            /* EXTRA SCRIPTS */
+            {% block js %}{% endblock js %}
+        </script>
+    {% endblock %}
+    </body>
+</html>
+
+<!-- JavaScript -->
+<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui.js"></script>
+{% block extra_js %}{% endblock %}

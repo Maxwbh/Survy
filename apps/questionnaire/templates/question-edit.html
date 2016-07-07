@@ -1,0 +1,234 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+{% block extra_stylesheets %}
+    <link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/vendor.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/formbuilder.css"/>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .content {
+            background-color: #444;
+            font-family: sans-serif;
+        }
+
+        .fb-main {
+            background-color: #fff;
+            border-radius: 5px;
+            min-height: 600px;
+        }
+
+        {#      input[type=text] {#}
+        {#        height: 26px;#}
+        {#        margin-bottom: 3px;#}
+        {#      }#}
+        {##}
+        {#      select {#}
+        {#        margin-bottom: 5px;#}
+        {#        font-size: 40px;#}
+        {#      }#}
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li {% url 'survey:list' %}>{% trans 'Survey' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <form method="get" action="#" class="fancy-form">
+                        <i class="fa fa-edit"></i>
+                        <input type="tel" class="form-control" value={{ question }}>
+
+                        <!-- tooltip - optional, bootstrap tooltip can be used instead -->
+                        <span class="fancy-tooltip top-left"> <!-- positions: .top-left | .top-right -->
+                            <em>{% trans 'Questionnaire Name' %}</em>
+                        </span>
+                    </form>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+
+                    <div class="content">
+
+                        <div class="containner">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class='fb-main'></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    <a href="{% url 'survey:view' questionnaire.survey_id %}" class="btn btn-primary"><span
+                            class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
+                </div>
+                <!-- /panel footer -->
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_javascript %}
+    <script src="{{ STATIC_URL }}js/vendor.js"></script>
+    <script src="{{ STATIC_URL }}js/formbuilder.js"></script>
+    <script>
+        $(function () {
+            var fb = new Formbuilder({
+                selector: '.fb-main',
+                bootstrapData: [
+                    {
+                        'cid': 'c13',
+                        'field_options': {},
+                        'field_type': 'file',
+                        'label': 'Medical history',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c14',
+                        'field_options': {
+                            'description': 'Campo tipo text',
+                            'maxlength': '15',
+                            'min_max_length_units': 'characters',
+                            'minlength': '5',
+                            'size': 'large'
+                        },
+                        'field_type': 'text',
+                        'label': 'Text',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c18',
+                        'field_options': {
+                            'description': 'Field type paragraph',
+                            'maxlength': '22',
+                            'min_max_length_units': 'words',
+                            'minlength': '2',
+                            'size': 'medium'
+                        },
+                        'field_type': 'paragraph',
+                        'label': 'Paragraph',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c22',
+                        'field_options': {
+                            'description': 'Field type checkboxes',
+                            'include_other_option': true,
+                            'options': [
+                                {'checked': false, 'label': 'Option 01', 'value': '1'},
+                                {'checked': true, 'label': 'Option 02', 'value': '2'}]
+                        },
+                        'field_type': 'checkboxes',
+                        'label': 'Checkboxes',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c26',
+                        'field_options': {
+                            'description': 'Field type radio',
+                            'include_other_option': false,
+                            'options': [{'checked': false, 'label': 'Choice 01'},
+                                {'checked': true, 'label': 'Choice 02'}]
+                        },
+                        'field_type': 'radio',
+                        'label': 'Radio',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c30',
+                        'field_options': {'description': 'Field type date'},
+                        'field_type': 'date',
+                        'label': 'Date',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c34',
+                        'field_options': {
+                            'description': 'Field type dropdown',
+                            'include_blank_option': true,
+                            'options': [{'checked': false, 'label': 'Option 01'},
+                                {'checked': false, 'label': 'Option 02'}]
+                        },
+                        'field_type': 'dropdown',
+                        'label': 'DropDown',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c38',
+                        'field_options': {'description': 'Field type time'},
+                        'field_type': 'time',
+                        'label': 'Time',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c46',
+                        'field_options': {'description': 'Field type website'},
+                        'field_type': 'website',
+                        'label': 'Website',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c42',
+                        'field_options': {
+                            'description': 'Field type number',
+                            'integer_only': true,
+                            'max': '20',
+                            'min': '1',
+                            'units': 'cm'
+                        },
+                        'field_type': 'number',
+                        'label': 'Number',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c50',
+                        'field_options': {'description': 'Field type email'},
+                        'field_type': 'email',
+                        'label': 'Email',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c54',
+                        'field_options': {'description': 'Field type price'},
+                        'field_type': 'price',
+                        'label': 'Price',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c58',
+                        'field_options': {'description': 'Field type address'},
+                        'field_type': 'address',
+                        'label': 'Address',
+                        'required': true
+                    },
+                    {
+                        'cid': 'c62',
+                        'field_options': {'description': 'section break'},
+                        'field_type': 'section_break',
+                        'label': 'Section',
+                        'required': true
+                    }]
+            });
+
+            fb.on('save', function (payload) {
+                console.log(payload);
+            })
+        });
+    </script>
+{% endblock %}

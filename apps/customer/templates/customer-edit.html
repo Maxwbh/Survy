@@ -1,0 +1,143 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n %}
+
+{% block panel_right %}
+    <section class="nopadding-top padding-bottom-20">
+        <div class="row">
+            <div class="col-sm-6">
+                <a href="#" class="btn btn-featured btn-green btn-inverse" data-toggle="modal" data-target="#modal-paid">
+                    <span>{% trans 'BUY MORE ANSWERS' %}</span>
+                    <i class="fa fa-shopping-cart"></i>
+                </a>
+            </div>
+            <div class="col-sm-6">
+                <a href="{% url 'order:pay-details' %}" class="btn btn-featured btn-yellow btn-inverse">
+                    <span>{% trans 'PAYMENTS DETAILS' %}</span>
+                    <i class="fa fa-credit-card"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-1" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="title elipsis">
+                        <strong>{% trans 'Update Your Account!' %}</strong>
+                    </span>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form action="{% url 'customer:edit' %}" method="post">
+                        {% csrf_token %}
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Please enter your current password' %} <span class="text-danger">*</span></label>
+                                        <input type="password" name="password" value="" class="form-control" required>
+                                        <small class="text-danger block">{% trans 'This is needed to change any of the details below' %}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Name' %} <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" value="{{ customer.name }}" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Email' %} <span class="text-danger">*</span></label>
+                                        <input type="email" name="email" value="{{ request.user.email }}" class="form-control" disabled>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Company Name' %}</label>
+                                        <input type="text" name="company_name" value="{{ customer.company_name }}" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Company Address' %}</label>
+                                        <input type="text" name="company_address" value="{{ customer.company_address }}" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Company Tax Number' %}</label>
+                                        <input type="text" name="company_tax_id" value="{{ customer.company_tax_id }}" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Company Tax Office' %}</label>
+                                        <input type="text" name="company_tax_ofc" value="{{ customer.company_tax_ofc }}" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-4 col-sm-4">
+                                        <label>{% trans 'Country' %}</label>
+                                        <select name="country" class="form-control select2">
+                                            <option value="">--- Select ---</option>
+                                            {% for country in countrys %}
+                                            <option value="{{ country.iso }}" {% if country.iso == customer.country %}selected{% endif %}>{{ country }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <label>{% trans 'City' %}</label>
+                                        <input type="text" name="city" value="{{ customer.city }}" class="form-control">
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <label>{% trans 'Language' %}</label>
+                                        <select name="language_code" class="form-control select2">
+                                            <option value="">--- Select ---</option>
+                                            {% for lang in langs %}
+                                            <option value="{{ lang.code }}" {% if lang.code == customer.language_code %}selected{% endif %}>{{ lang }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="heading-title heading-dotted text-left">
+                                            <h5>{% trans 'Password' %} <span>{% trans 'Change' %}</span></h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Please enter your current password' %} <span class="text-danger">*</span></label>
+                                        <input type="password" name="new_password" value="" class="form-control">
+                                        <small class="text-danger block">{% trans "LEAVE BLANK IF YOU DON'T WANT TO CHANGE THIS" %}</small>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Please enter your current password' %} <span class="text-danger">*</span></label>
+                                        <input type="password" name="new_password2" value="" class="form-control">
+                                        <small class="text-danger block">{% trans 'Please enter again to confirm' %}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-3d btn-teal btn-xlg btn-block margin-top-30">
+                                    UPDATE YOUR ACCOUNT
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

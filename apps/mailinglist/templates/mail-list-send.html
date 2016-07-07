@@ -1,0 +1,272 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize %}
+{% block panel_stylesheets %}
+<link href="{{ STATIC_URL }}smarty/plugins/editor.summernote/summernote.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block breadcrumb_top %}{% endblock %}
+{% block breadcrumb %}
+    <li><a class="active" href="{% url 'mail-list:list' %}">{% trans 'Mailing' %}</a></li>
+    <li class="active">{% trans 'Send' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{{ title }}</strong>
+                    </span>
+
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form action="#" method="post" id="form-send" onsubmit="return validateForm()">
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group">
+                                    <!--  CAMPAIGN -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <label>{% trans 'Campaign Name' %} <span class="text-danger">*</span>
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Name of your campaign' %}"
+                                               data-original-title="{% trans 'Campaign' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <input type="text" name="name" value="{{ form.name }}" class="form-control required">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- SURVEY -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Survey' %} <span class="text-danger">*</span>
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                           data-content="{% trans 'Select from here the Survey that you want to send.' %}"
+                                           data-original-title="{% trans 'Survey' %}" rel="popover" data-placement="top"
+                                           data-trigger="hover"></a>
+                                        </label>
+                                        <select id="id_surveu" name="survey_id" class="form-control pointer required"
+                                            onchange="Dajaxice.apps.mailinglist.get_language(Dajax.process, {'survey_id': $('#id_surveu option:selected').val()});">
+                                            <option value="">--- Select ---</option>
+                                            {% for survey in surveys %}
+                                            <option value="{{ survey.id }}"{% if survey.id == form.survey_id|intword %} selected{% endif %}>{{ survey }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- LANGUAGE -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Language' %}
+                                            <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Select the Language to send Survey with that Language.' %}"
+                                               data-original-title="{% trans 'Language' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <select name="language_id" class="form-control pointer required" disabled>
+                                            <option value="">--- Select ---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- EMAIL LIST -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'E-mail List' %} <span class="text-danger">*</span>
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Select thelist, with emails, that your already create it, and you want to send yout Survey.' %}"
+                                               data-original-title="{% trans 'E-mail List' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <select name="list_id" class="form-control pointer">
+                                            <option value="">--- Select ---</option>
+                                            {% for list in lists %}
+                                            <option value="{{ list.id }}"{% if list.id == form.list_id|intword %} selected{% endif %}>{{ list }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- CUSTOM MESSAGE -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Custom Message' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Select Custom Message.' %}"
+                                               data-original-title="{% trans 'Custom Message' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <select id="id_custom_message" name="custom_message_id" class="form-control pointer"
+                                                onchange="Dajaxice.apps.mailinglist.get_custom_message(Dajax.process, {'msg_id': $('#id_custom_message option:selected').val()});">
+                                            <option value="">--- Select ---</option>
+                                            {% for message in custom_messages %}
+                                                <option value="{{ message.id }}" {% if message.id == form.custom_message_id|intword %}select {% endif %}>{{ message }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <!--  MESSAGE -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <label>{% trans 'Message' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'At the last field (Personalize Message), you can post your message by e-mail that will take your client.<br>This field is a text editor where you can insert picture (via link ) to change color in background and fonts. To change the font size, etc. To handle the editor box, click on it and them hit Enter, as many hits of enter the editor making biger. Them start writing your message, change collor, make your message bold or regular, etc.' %}"
+                                               data-original-title="{% trans 'Message' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <textarea name="content" id="content2" class="form-control required" data-height="200" data-lang="en-US">{{ form.content }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- NAME FOR MESSAGE TO SAVE -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Name for Message to save' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'If You need to save and use this message again , add name here.' %}"
+                                               data-original-title="{% trans 'Name for Message to save' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <input type="text" name="custom_message_name" value="{{ form.custom_message_name }}" class="form-control">
+                                    </div>
+                                    <!-- PERSONALIZE THE LINK -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Personalize the link' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Add a text to personalize the link for your Survey.' %}"
+                                               data-original-title="{% trans 'Personalize the link' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <input type="text" name="link" value="{{ form.link }}" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- ENTER EMAILS -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <label>{% trans 'Enter E-mails (optional)' %}
+                                            <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'If you don t create a list, you can add by manual your e-mails, here. <br> You can add e-mails, as many as you need. <br>You must separate, the e-mails, with coma. <br>The way that you must add the e-mails: <br> email@email.com , email1@email.com , etc' %}"
+                                               data-original-title="{% trans 'Enter E-mails' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <div class="fancy-form">
+                                            <textarea name="emails_list" rows="5" class="form-control" placeholder="Add Emails Separated by Comma (,) example : mail@mail.com,mail1@mail.com, etc"></textarea>
+                                            <i class="fa fa-envelope-o"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <!-- EMAIL SENDER -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'E-mail sender' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Personalize your mailing, adding here Your e-mail. This is the e-mail that will apear, to the receiver.' %}"
+                                               data-original-title="{% trans 'E-mail Sender' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <input type="email" name="email_sender" value="{{ form.email_sender }}" class="form-control required" aria-required="true">
+                                    </div>
+                                    <!-- SUBJECT -->
+                                    <div class="col-md-6 col-sm-6">
+                                        <label>{% trans 'Subject' %}
+                                        <a id="popoverData" class="fa fa-question-circle"
+                                               data-content="{% trans 'Add Subject for your mailing. You must add Subject, otherwise your e-mail will be marked as SPAM.' %}"
+                                               data-original-title="{% trans 'Subject' %}" rel="popover" data-placement="top"
+                                               data-trigger="hover"></a>
+                                        </label>
+                                        <input type="text" name="subject" value="{{ form.subject }}" class="form-control required">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-3d btn-teal btn-xlg btn-block margin-top-30">
+                                    <i class="fa fa-send-o fa-2x"></i>
+                                    <span class="block font-lato">{% trans 'SEND YOUR SURVEY' %}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- /panel content -->
+
+                <!-- panel footer -->
+                <div class="panel-footer">
+                    {#                    <div class="row">#}
+                    {#                        <div class="col-md-4">#}
+                    {#                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'mail-list:list' %}"#}
+                    {#                               role="button"> {% trans 'Cancel' %}</a>#}
+                    {#                        </div>#}
+                    {#                        <div class="col-md-8">#}
+                    {#                            <div class="pull-right">#}
+                    {#                                <button onclick="$('#form-mail-list').submit()" class="btn btn-sm btn-success"><i#}
+                    {#                                        class="fa fa-save"></i>{% trans 'Save' %}</button>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                </div>
+                <!-- /panel footer -->
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/bootstrap/js/bootstrap.min.js"></script>
+<link href="{{ STATIC_URL }}smarty/plugins/editor.summernote/summernote.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/editor.summernote/summernote.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/editor.summernote/plugin/template/summernote-ext-template.js"></script>
+<script type="text/javascript">
+    var editor = $('#content2').summernote({
+        placeholder: 'write here...',
+        height: 200,
+        tabsize: 2,
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['hr', 'link', 'picture', 'template', 'codeview']]
+        ],
+        template: {
+            path: '{{ STATIC_URL }}smarty/plugins/editor.summernote/plugin/template/tpls',
+            list: [
+                'title', 'name', 'link'
+            ]
+        }
+    });
+
+    jQuery(document).ready(function() {
+        $('.dropdown-toggle').dropdown();
+        });
+</script>
+<script>
+    function validateForm() {
+        var list_id = $("[name='list_id']");
+        var emails_list = $("[name='emails_list']");
+        console.log('lll', list_id, emails_list);
+        if (list_id.val() == "" && emails_list.val() == "") {
+            list_id.addClass('error');
+            emails_list.addClass('error');
+            new _toastr("Select 'E-mail list' or add 'emails manually'","top-right","error",false);
+            return false;
+        } else {
+            list_id.removeClass('error');
+            emails_list.removeClass('error');
+        }
+    }
+</script>
+{% endblock %}

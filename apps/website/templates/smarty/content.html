@@ -1,0 +1,14 @@
+{% extends 'smarty/_base.html' %}
+{% load  i18n %}
+{% block section %}
+<section class="padding-xs">
+    <div class="container">
+
+        <header class="text-center margin-bottom-10">
+            <h3>{{ title }}</h3>
+        </header>
+        <hr class="margin-bottom-60">
+        {{ content.content|safe }}
+    </div>
+</section>
+{% endblock %}

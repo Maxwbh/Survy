@@ -1,0 +1,183 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load  i18n %}
+
+{% block top_bar %}{% endblock %}
+
+{% block extra_stylesheets %}
+    <link href="{{ STATIC_URL }}jquery-bar-rating/themes/fontawesome-stars.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}smarty/admin/css/essentials.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}smarty/css/extra.css" rel="stylesheet" type="text/css"/>
+    <link href="{{ STATIC_URL }}form.step/css/all.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <section class="page-header page-header-xs">
+        <div class="container">
+            <div class="col-sm-2 text-primary">
+                {% if survey.image %}
+                    <img src="{{ survey.image.url }}" class="img-thumbnail">
+                {% else %}
+                    <i class="fa fa-edit fa-5x"></i>
+                {% endif %}
+            </div>
+            <div class="col-sm-8">
+                <h1>{{ survey.get_title }}</h1>
+                <span class="font-lato weight-300 size-18 hidden-xs">{{ survey.get_description }}</span>
+            </div>
+            <div class="col-sm-2">
+                <div id="topBar" style="background-color: inherit; border-bottom: inherit">
+                    <div class="container">
+                        <ul class="top-links list-inline">
+                            <li style="border-right: inherit">
+                                <a class="dropdown-toggle no-text-underline" data-toggle="dropdown" href="#">
+                                    <img class="flag-lang" src="/static/smarty/images/flags/{{ language.code }}.png" width="16" height="11" alt="lang"> {{ language }}
+                                </a>
+                                <ul class="dropdown-langs dropdown-menu">
+                                    {% with survey.get_languages as langs %}
+                                    {% for lang in langs %}
+                                        {% if language.code != lang.code %}
+                                        <li>
+                                            <a tabindex="-1" href="?lang={{ lang.id }}">
+                                                <img class="flag-lang" src="/static/smarty/images/flags/{{ lang.code }}.png" width="16" height="11" alt="lang"> {{ lang }}
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="padding-xxs">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="wizard-response" action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="translate" id="translate" value="{{ survey.translate }}">
+                        <input type="hidden" name="language_id" id="language_id" value="{{ survey.tr_language_id }}">
+                        <input type="hidden" name="email_id" id="email_id" value="{{ email_id }}">
+                        <input type="hidden" name="password_id" id="password_id" value="{{ password_id }}">
+                        {% for questionnaire in survey.questionnaire_set.all %}
+                        <fieldset>
+                            <legend>{{ questionnaire }}</legend>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {% for question in questionnaire.question_set.all %}
+                                    <div class="form-group col-sm-12">
+                                        <div class="col-sm-4" style="padding-top: 6px">
+                                            <label class="pull-right" for="exampleInputEmail1">{{ question }} {% if question.required %}<span class="text-danger"> *</span>{% endif %}</label>
+                                        </div>
+                                        <div class="col-sm-8 fancy-form">
+                                            {% for type in question.type_set.all %}
+                                                {{ type.render_field|safe }}
+                                            {% endfor %}
+                                        </div>
+
+                                        {% if not forloop.last %}
+                                        <hr class="col-lg-12">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </fieldset>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_javascript %}
+    <script src="{{ STATIC_URL }}form.step/js/parsley.js"></script>
+    <script src="{{ STATIC_URL }}form.step/js/all.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-bar-rating/jquery.barrating.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}bootstrap-checkbox/bootstrap-checkbox.js"></script>
+
+    <script>
+        $("[data-name='star-rating']").barrating({
+            theme: 'fontawesome-stars',
+            showSelectedRating: false,
+            initialRating: -1
+        });
+        function free_field_change (elm, id) {
+            console.log('ID >>>', elm, id);
+            var elm_inp = $("#free-field-" + id);
+            var checked = $(elm).prop("checked");
+            elm_inp.prop("disabled", !checked);
+            elm_inp.val('');
+            elm_inp.prop('required', checked);
+            if (checked) {
+                elm_inp.focus();
+            }
+            elm_inp.parsley().validate();
+        };
+        $(window).load(function () {
+            var sfw =$("#wizard-response").stepFormWizard({
+                height: 'auto',
+                linkNav: 'prev',
+                theme: 'circle',
+                onNext: function(i, wizard) {
+                    var valid = $('#wizard-response', wizard).parsley().validate('block' + i);
+                    sfw.refresh();
+                    return valid;
+                },
+                onFinish: function(i, wizard) {
+                    var valid = $('#wizard-response', wizard).parsley().validate();
+                    sfw.refresh();
+                    return valid;}
+            });
+            {% if show_box %}
+            swal({
+                title: "To continue, add a Customer E-Mail or Unique Id",
+                text: "Please add a Unique ID or e-mail to fill in the Survey, with your costumer or user answers",
+                type: "input",
+                showCancelButton: false,
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            }, function (inputValue) {
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+                swal({
+                            title: "Thanks",
+                            type: "success",
+                            text: "",
+                            timer: 1200,
+                            showConfirmButton: false
+                        }
+                );
+                $("#email_id").val(inputValue);
+            });
+            {% endif %}
+        });
+        var e = jQuery(".datepicker");
+        e.length > 0 && loadScript(plugin_path + "bootstrap.datepicker/js/bootstrap-datepicker.min.js", function () {
+            jQuery().datepicker && e.each(function () {
+                var e = jQuery(this), t = e.attr("data-lang") || "en";
+                "en" != t && "" != t && loadScript(plugin_path + "bootstrap.datepicker/locales/bootstrap-datepicker." + t + ".min.js"), jQuery(this).datepicker({
+                    format: e.attr("data-format") || "yyyy-mm-dd",
+                    language: t,
+                    rtl: "true" == e.attr("data-RTL") ? !0 : !1,
+                    changeMonth: "false" == e.attr("data-changeMonth") ? !1 : !0,
+                    todayBtn: "false" == e.attr("data-todayBtn") ? !1 : "linked",
+                    calendarWeeks: "false" == e.attr("data-calendarWeeks") ? !1 : !0,
+                    autoclose: "false" == e.attr("data-autoclose") ? !1 : !0,
+                    todayHighlight: "false" == e.attr("data-todayHighlight") ? !1 : !0,
+                    onRender: function () {
+                    }
+                }).on("changeDate", function () {
+                }).data("datepicker")
+            })
+        });
+    </script>
+{% endblock %}

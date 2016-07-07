@@ -1,0 +1,72 @@
+{% load i18n %}
+<script type="text/javascript">
+    function loadModal(listID) {
+        $("#modal_emails").modal();
+        $("#list_id").val(listID);
+    };
+    function clearDataSet() {
+        $('#table_emails_wrapper').html('<table class="table table-striped table-bordered table-hover" id="table_emails" class="display" width="100%"></table>');
+        $('#btn-import').prop('disabled', true);
+        $('#btn-upload-clear').prop('disabled', true);
+        $('#btn-upload').prop('disabled', true);
+    };
+    function createdataSet(data) {
+        console.log('data', data);
+        if (typeof oTable == 'undefined') {
+            clearDataSet();
+            var oTable = $('#table_emails').dataTable({
+                scrollY: "250px",
+                scrollCollapse: true,
+                retrieve: true,
+                paging: false,
+                searching: false,
+                data: data,
+                columns: [
+                    { title: "{% trans 'Title' %}" },
+                    { title: "{% trans 'Name' %}" },
+                    { title: "{% trans 'E-Mail' %}" },
+                    { title: "{% trans 'Erro' %}" },
+                ]
+            });
+        }
+        else
+        {
+            oTable.fnClearTable( 0 );
+            oTable.fnDraw();
+        }
+    };
+    function sendData() {
+        $('#btn-upload').button('loading');
+        $.ajax({
+            url: '{% url 'mail-list:send-file' %}',
+            type: 'POST',
+            data: new FormData(document.getElementById('form')),
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                var dataSet = data.dataSet;
+                createdataSet(dataSet);
+                $('#btn-upload-clear').prop('disabled', false);
+                $('#btn-import').prop('disabled', false);
+                console.log('success');
+            },
+            error: function (data) {
+                console.log('error')
+            },
+            complete: function (data) {
+                console.log('complete');
+                $('#btn-upload').button('reset');
+            }
+        });
+
+    }
+    ;
+    $("#file").on('change', function () {
+        if ($('#file').val()) {
+            $('#btn-upload').prop('disabled', false)
+        } else {
+            $('#btn-upload').prop('disabled', true)
+        }
+        event.preventDefault();
+    });
+</script>

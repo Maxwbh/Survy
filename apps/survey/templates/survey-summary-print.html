@@ -1,0 +1,178 @@
+{% load i18n humanize %}
+<html>
+<head>
+<style>
+    @page title_template {
+        size: a4 landscape;
+        /* Static Frame */
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            border: 0pt solid white;
+            left: 50pt; width: 740pt; top: 50pt; height: 20pt;
+        }
+        /* Content Frame */
+        @frame content_frame {
+            border: 0pt solid white;
+            left: 50pt; width: 740pt; top: 70pt; height: 702pt;
+        }
+        /* Another static Frame */
+        @frame footer_frame {
+            border: 0pt solid white;
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 740pt; top: 540pt; height: 14pt;
+        }
+    }
+    @page {
+        size: a4 portrait;
+        /* Static Frame */
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            border: 0pt solid white;
+            left: 50pt; width: 512pt; top: 50pt; height: 20pt;
+        }
+        /* Content Frame */
+        @frame content_frame {
+            border: 0pt solid white;
+            left: 50pt; width: 512pt; top: 70pt; height: 702pt;
+        }
+        /* Another static Frame */
+        @frame footer_frame {
+            border: 0pt solid white;
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 512pt; top: 772pt; height: 14pt;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content">
+        <center><h1>{{ survey }}</h1></center>
+    </div>
+
+    <!-- Content for Static Frame 'footer_frame' -->
+    <div id="footer_content">Page <pdf:pagenumber>
+        of <pdf:pagecount>
+    </div>
+
+    <pdf:nexttemplate name="title_template" />
+    <!-- HTML Content -->
+    <h2>Section Average with Rating</h2>
+    <table class="table table-hover table-striped" border="1px" style="padding-top: 2px; padding-left: 2px">
+    {% for section in section_average %}
+        <tr>
+            <td>Q.{{ forloop.counter|stringformat:'02i' }} - {{ section.section }}</td>
+            <td>
+                Score: {{ section.score|floatformat:2 }}
+            </td>
+            <td width="100px">
+                <div class="progress margin-bottom-0">
+                  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ section.score }}" aria-valuemin="0" aria-valuemax="{{ section.max }}" style="width: {{ section.css|floatformat:2 }}%;">
+                    <span class="sr-only">{{ section.css|floatformat:2 }}%</span>
+                  </div>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    <div>
+      <pdf:nextpage />
+    </div>
+    <pdf:nexttemplate/>
+    <h2>Question with Rate</h2>
+    <table border="1px" style="padding-top: 2px; padding-left: 2px">
+        <thead>
+            <tr>
+                <th>Question</th>
+                {% for title in survey.get_header%}
+                <th>{{ title }}</th>
+                {% endfor %}
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sections in summary_sections %}
+            {% for section, values in sections.iteritems %}
+                <tr><td colspan="7"><strong>{{ section }}</strong></td></tr>
+
+                {% for question in values %}
+                    <tr>
+                        {% for key, values in  question.iteritems%}
+                            <td>Q.{{ forloop.parentloop.counter }} {{ key }}</td>
+                            {% for v in values %}
+                            {% if forloop.last %}
+                                <td><span class="label label-warning">{{ v }}</span></td>
+                            {% else %}
+                                <td>{{ v }}</td>
+                            {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div>
+      <pdf:nextpage />
+    </div>
+    <h2>Question</h2>
+    {% for questionnaire in survey.questionnaire_set.all %}
+        {% for question in questionnaire.question_set.all %}
+                {% for type in question.type_set.all %}
+                    {% with type.get_response as types %}
+                    {% if type.type in 'textAreaRow,textAnsRow' %}
+                    {% else %}
+                        <table>
+
+                        <td class="col-md-6 col-xs-7">
+                            <h5><small>Section</small> {{ type.question.questionnaire }}</h5>
+                            <strong>Q.{{ forloop.parentloop.counter|stringformat:".02d" }}</strong>
+                            <p><strong>&bullet; {{ type.question }}</strong></p>
+                        </td>
+                        <td class="col-md-6 col-xs-5">
+                            <div class="scroll">
+
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <td><strong>Activity</strong></td>
+                                        <td class="text-center"><strong>Answers</strong></td>
+                                        <td class="text-center"><strong>Relative Answer</strong></td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if types.count == 0 %}
+                                            no values
+                                        {% else %}
+                                            {% for value in types.values %}
+                                                <tr>
+                                                    <td>{{ value.texto }}</td>
+                                                    <td class="text-center">{{ value.total }}</td>
+                                                    <td class="text-center">{{ value.porcento|intcomma|floatformat:2 }}%</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                        {% if types.score %}
+                                            <tr>
+                                                <td></td>
+                                                <td><span class="pull-right"><h3>Score</h3></span></td>
+                                                <td><span class="pull-right"><h3>{{ types.score|floatformat:2 }}</h3></span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                        </table>
+                        <hr class="col-sm-12 nomargin-top">
+                    {% endif %}
+                    {% endwith %}
+                {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</body>
+</html>

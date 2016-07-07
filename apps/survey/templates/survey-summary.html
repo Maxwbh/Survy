@@ -1,0 +1,107 @@
+{% extends 'survey-view.html' %}
+{% load i18n %}
+
+{% block questionario %}
+    <div id="panel-ui-tan-r1" class="panel panel-default">
+        <!-- panel content -->
+        <div class="panel-body">
+            <!-- no background -->
+            <div class="tabs nomargin">
+
+                <!-- tabs -->
+                <ul class="nav nav-tabs nav-justified">
+                    <li class="active">
+                        <a href="#aba_section_rating" data-toggle="tab" aria-expanded="false">
+                            <i class="fa fa-file-pdf-o"></i> Section Average with Rating
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#aba_question_rating" data-toggle="tab" aria-expanded="true">
+                            <i class="fa fa-file-pdf-o"></i> Question with Rate
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#aba_question" data-toggle="tab" aria-expanded="true">
+                            <i class="fa fa-file-pdf-o"></i> Question
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- tabs content -->
+                <div class="tab-content transparent">
+                    <!-- SECTION RATING -->
+                    <div id="aba_section_rating" class="tab-pane active">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                            {% for section in section_average %}
+                                <tr>
+                                    <td>Q.{{ forloop.counter|stringformat:'02i' }} - {{ section.section }}</td>
+                                    <td>
+                                        Score: {{ section.score|floatformat:2 }}
+                                    </td>
+                                    <td width="100px">
+                                        <div class="progress margin-bottom-0">
+                                          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ section.score }}" aria-valuemin="0" aria-valuemax="{{ section.max }}" style="width: {{ section.css|floatformat:2 }}%;">
+                                            <span class="sr-only">60% Complete</span>
+                                          </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    <!-- QUESTION RATING -->
+                    <div id="aba_question_rating" class="tab-pane">
+                        <div class="table-responsive">
+                            <table class="table table-bordered nomargin">
+                                <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        {% for title in survey.get_header%}
+                                        <th>{{ title }}</th>
+                                        {% endfor %}
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for sections in summary_sections %}
+                                    {% for section, values in sections.iteritems %}
+                                        <tr><td colspan="7"><strong>{{ section }}</strong></td></tr>
+
+                                        {% for question in values %}
+                                            <tr>
+                                                {% for key, values in  question.iteritems%}
+                                                    <td>Q.{{ forloop.parentloop.counter }} {{ key }}</td>
+                                                    {% for v in values %}
+                                                    {% if forloop.last %}
+                                                        <td><span class="label label-warning">{{ v }}</span></td>
+                                                    {% else %}
+                                                        <td>{{ v }}</td>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- QUESTION -->
+                    <div id="aba_question" class="tab-pane">
+                        <div style="background-color: #F1F2F7">
+                            {% include '_report.html' %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- /panel content -->
+    </div>
+
+
+
+{% endblock %}

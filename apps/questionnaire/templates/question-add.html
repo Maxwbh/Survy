@@ -1,0 +1,881 @@
+{% extends 'smarty/panel/_base_panel.html' %}
+{% load i18n bootstrap3 humanize %}
+
+{% block panel_stylesheets %}
+<link href="{{ STATIC_URL }}smarty/plugins/jqgrid/css/ui.jqgrid.css" rel="stylesheet" type="text/css"
+      xmlns="http://www.w3.org/1999/html"/>
+<link href="{{ STATIC_URL }}smarty/css/layout-jqgrid.css" rel="stylesheet" type="text/css" />
+<link href="{{ STATIC_URL }}jquery-bar-rating/themes/fontawesome-stars.css" rel="stylesheet" type="text/css" />
+<link href="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li class="active">{% trans 'Edit' %}</li>
+{% endblock %}
+
+{% block panel_right %}
+    <section class="nopadding-top" id="middle">
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- panel title -->
+                    <span class="title elipsis">
+                        <strong>{% trans 'Add Your Question in Section' %} <span class="text-warning">{{ questionnaire }}</span></strong>
+                    </span>
+                </div>
+                <!-- panel content -->
+                <div class="panel-body">
+                    <form>
+                        <label for="id_question_name">{% trans 'Question' %}</label>
+                        <div class="fancy-form">
+                            <i class="fa fa-edit"></i>
+                            <input type="text" class="form-control" id="id_question_name"
+                                   placeholder="{% trans 'Write Your Question Here' %}..." value="{{ question }}">
+                            <!-- tooltip - optional, bootstrap tooltip can be used instead -->
+                            <span class="fancy-tooltip top-left"> <!-- positions: .top-left | .top-right -->
+                                <em>{% trans 'Write Your Question Here' %}</em>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="switch switch-success switch-round">
+                                <input type="checkbox" id="id_question_required"{% if question.required %} checked{% endif %}>
+                                <span class="switch-label" data-on={% trans 'Yes' %} data-off={% trans 'No' %}></span>
+                                <span> {% trans 'this question is required' %}?</span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="dashboard">
+            <div id="panel-2" class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="title elipsis">
+                        <strong>{% trans 'Choose Type of Answer' %} {{ type }}</strong>
+                    </span>
+                </div>
+                <!-- TYPES -->
+                <div class="panel-body">
+                    <!-- TYPOS -->
+                    <div class="row tabs nomargin">
+                        <!-- tabs -->
+                        <div class="col-md-3 col-sm-3 nopadding-right nopadding-left">
+                            <ul class="nav nav-tabs nav-stacked">
+                                <li class="active"> <!-- CHECK BOX -->
+                                    <a id="id_tab_check_box" href="#tab_check_box"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="false"><i class="fa fa-check-square-o"></i> {% trans 'Check Box' %}</a>
+                                </li><li> <!-- RADIO BUTTON -->
+                                    <a id="id_tab_radio_button" href="#tab_radio_button"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-dot-circle-o"></i> {% trans 'Radio Button' %}</a>
+                                </li><li> <!-- TEXT ANSWER -->
+                                    <a id="id_tab_text_answer" href="#tab_text_answer"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-text-height"></i> {% trans 'Text Answer' %}</a>
+                                </li><li> <!-- AGE -->
+                                    <a id="id_tab_age" href="#tab_age"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-calendar-o"></i> {% trans 'Age' %}</a>
+                                </li><li> <!-- DATES -->
+                                    <a id="id_tab_dates" href="#tab_dates"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-calendar"></i> {% trans 'Dates' %}</a>
+                                </li><li> <!-- NATIONALITY -->
+                                    <a id="id_tab_nationality" href="#tab_nationality"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-language"></i> {% trans 'Nationality' %}</a>
+                                </li><li> <!-- GENDER -->
+                                    <a id="id_tab_gender" href="#tab_gender"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-venus-mars"></i> {% trans 'Gender' %}</a>
+                                </li><li> <!-- YES/NO -->
+                                    <a id="id_tab_yes_no" href="#tab_yes_no"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-toggle-off"></i> {% trans 'Yes' %}/{% trans 'No' %}</a>
+                                </li>
+                                </li><li> <!-- YES/NO -->
+                                    <a id="id_tab_number" href="#tab_number"{% if action == 'add' %} data-toggle="tab" {% endif %}aria-expanded="true"><i class="fa fa-sort-numeric-asc"></i> {% trans 'Number' %}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- tabs content -->
+                        <div class="col-md-9 col-sm-9 nopadding-right nopadding-left">
+                                <div class="tab-content transparent">
+                                    <!-- TAB CHECK BOX -->
+                                    <div id="tab_check_box" class="tab-pane active">
+                                        <h5> {% trans 'Check Box' %}<i class="fa fa-check-square-o fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_check_box_form">
+                                            <input type="hidden" value="checkBoxRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Choose Position for Answers' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansPosC" id="ansPosCH" value="1" checked="">
+                                                    <i></i> {% trans 'Horizontal' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansPosC" id="ansPosCV" value="2">
+                                                    <i></i> {% trans 'Vertical' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansPosC" id="ansPosCD" value="4">
+                                                    <i></i> {% trans 'Drop-down' %}
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>{% trans 'Choose Answers Type' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeC" id="ansTypeCO"  value="1">
+                                                    <i></i> {% trans 'One' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeC" id="ansTypeCM" value="2" checked="checked">
+                                                    <i></i> {% trans 'Multiple' %}
+                                                </label>
+                                                <label class="radio">
+                                                        <input type="radio" name="ansTypeC" id="ansTypeCC" value="3">
+                                                        <i></i> {% trans 'Choose' %}
+                                                </label>
+                                                <select class="form-control" name="selAnsTypeCC" id="selAnsTypeCC" disabled style="display: inline-table; width: 30%">
+                                                    <option value="0">---{% trans 'Select' %}---</option>
+                                                </select>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB RADIO BUTTON -->
+                                    <div id="tab_radio_button" class="tab-pane">
+                                        <h5>{% trans 'Radio Button' %}<i class="fa fa-dot-circle-o fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_radio_button_form">
+                                            <input type="hidden" value="radioButtonRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Choose Position for Answers' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeR" id="ansTypeRH" value="1" checked="">
+                                                    <i></i> {% trans 'Horizontal' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeR" id="ansTypeRV" value="2">
+                                                    <i></i> {% trans 'Vertical' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeR" id="ansTypeRD"  value="4">
+                                                    <i></i> {% trans 'Drop-down' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeR" id="ansTypeR5S" value="5">
+                                                    <i></i> {% trans '5 Star Rating' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeR" id="ansTypeR10S"  value="6">
+                                                    <i></i> {% trans '10 Star Rating' %}
+                                                </label>
+                                            </div>
+                                            <div class="form-group" id="ansTypeRPrev5">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                    <select class="barRating">
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            <div class="form-group" id="ansTypeRPrev10">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                    <select class="barRating">
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                        <option value="7">7</option>
+                                                        <option value="8">8</option>
+                                                        <option value="9">9</option>
+                                                        <option value="10">0</option>
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB TEXT ANSWER -->
+                                    <div id="tab_text_answer" class="tab-pane">
+                                        <h5>{% trans 'Text Answer' %}<i class="fa fa-text-height fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_text_answer_form">
+                                            <input type="hidden" value="textAnsRow" name="type">
+                                            <div class="form-group">
+                                                <label for="id_position_ans">{% trans 'Choose Answers Type' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeT" id="ansTypeTB" value="textAnsRow" checked>
+                                                    <i></i> {% trans 'Text Box' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeT" id="ansTypeTA" value="textAreaRow">
+                                                    <i></i> {% trans 'Text Area' %}
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <!-- textarea -->
+                                                <div id="ansTypeTPrev">
+                                                    <input class="form-control"/>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB AGE -->
+                                    <div id="tab_age" class="tab-pane">
+                                        <h5>{% trans 'Age' %}<i class="fa fa-calendar-o fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_age_form">
+                                            <input type="hidden" value="ageRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Choose Answers Type' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeA" id="ansTypeAG" value="2" checked="">
+                                                    <i></i> {% trans 'Group Age' %}
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeA" id="ansTypeAI" value="1">
+                                                    <i></i> {% trans 'Individual Age' %}
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <div class="fancy-form fancy-form-select">
+                                                    <select class="form-control" id="selAnsTypeA">
+                                                        <option value="">---{% trans 'Select your Age' %}---</option>
+                                                        <option value="14-19">14-19</option>
+                                                        <option value="20-29">20-29</option>
+                                                        <option value="30-39">30-39</option>
+                                                        <option value="40-49">40-49</option>
+                                                        <option value="50-59">50-59</option>
+                                                        <option value="60-69">60-69</option>
+                                                        <option value="70-79">70-79</option>
+                                                    </select>
+                                                    <i class="fancy-arrow"></i>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB DATES -->
+                                    <div id="tab_dates" class="tab-pane">
+                                        <h5>{% trans 'Dates' %}<i class="fa fa-calendar fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_dates_form">
+                                            <input type="hidden" value="dateRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Choose Answers Type' %}:</label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeD" id="ansTypeDD" value="d/m/Y" checked data-format="dd/mm/yyyy">
+                                                    <i></i> dd/mm/yyyy
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeD" id="ansTypeDM" value="m/d/Y" data-format="mm/dd/yyyy">
+                                                    <i></i> mm/dd/yyyy
+                                                </label>
+                                                <label class="radio">
+                                                    <input type="radio" name="ansTypeD" id="ansTypeDY" value="Y/m/d" data-format="yyyy/mm/dd">
+                                                    <i></i> yyyy/mm/dd
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <!-- date picker -->
+                                                <div id="ansTypeDPrev">
+                                                    <input type="text" class="form-control datepicker" data-format="dd/mm/yyyy" data-lang="en" data-RTL="false">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB NATIONALITY -->
+                                    <div id="tab_nationality" class="tab-pane">
+                                        <h5>{% trans 'Nationality' %}<i class="fa fa-language fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <!-- FORM -->
+                                        <form id="id_tab_nationality_form">
+                                            <input type="hidden" value="nationalityRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <div class="fancy-form fancy-form-select">
+                                                    <select class="form-control">
+                                                        <option value="">--- {% trans 'Choose Country' %} ---</option>
+                                                        {% for l in lang %}
+                                                        <option value="{{ l.id }}">{{ l }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <i class="fancy-arrow"></i>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                    <!-- TAB GENDER -->
+                                    <div id="tab_gender" class="tab-pane">
+                                        <h5>{% trans 'Gender' %}<i class="fa fa-venus-mars fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <form id="id_tab_gender_form">
+                                            <input type="hidden" value="sexRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <input id="id_gender" type="checkbox" name="ansTypeG"
+                                                       checked data-off-class="btn-warning" data-on-class="btn-primary"
+                                                       data-off-label="Female" data-on-label="Male"
+                                                       data-off-icon-class="fa fa-female fa-lg" data-on-icon-class="fa fa-male fa-lg">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB YES/NO -->
+                                    <div id="tab_yes_no" class="tab-pane">
+                                        <h5>{% trans 'Yes' %}/{% trans 'No' %}<i class="fa fa-toggle-off fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <form id="id_tab_yes_no_form">
+                                            <input type="hidden" value="yesNoRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <label class="switch switch-success">
+                                                    <input type="checkbox" checked="">
+                                                    <span class="switch-label" data-on="YES" data-off="NO"></span>
+                                                </label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- TAB YES/NO -->
+                                    <div id="tab_number" class="tab-pane">
+                                        <h5>{% trans 'Number' %}<i class="fa fa-sort-numeric-asc fa-3x pull-right"></i></h5>
+                                        <hr>
+                                        <form id="id_tab_number_form">
+                                        <form id="id_tab_number_form">
+                                            <input type="hidden" value="numberRow" name="type">
+                                            <div class="form-group">
+                                                <label>{% trans 'Preview' %}:</label>
+                                                <input type="text" value="2" min="0" max="1000" class="form-control stepper">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- **** TABLE VALUES **** -->
+                                    <div class="panel panel-primary" id="panel-values">
+                                        <div class="panel-heading text-center">{% trans 'Values' %}</div>
+                                        <div class="panel-body">
+                                            <form class="form-inline" id="form-values" style="margin-bottom: 0px">
+                                                <p class="margin-top-8"></p>
+                                                <div class="row">
+                                                    <div class="col-sm-10">
+                                                        {% for value in type.values_set.all %}
+                                                        <div style="margin-top: 5px;" class="form-group pull-left" id="div-value-{{ value.id }}" data-id="{{ value.id }}">
+                                                            <input   value="{{ value.ans_val }}" type="number" class="form-control" name="value-{{ value.id }}" placeholder="Value" style="margin-right: 7px; width: 80px">
+                                                            <input value="{{ value.ans_text }}" type="text" class="form-control col-span-4" name="answer-{{ value.id }}" placeholder="Answer" style="margin-right: 6px;">
+                                                            <button onclick="removeElement('div-value-{{ value.id }}', true)" class="btn btn-danger fa fa-remove" data-name="removeElement"></button>
+                                                        </div>
+                                                        {% endfor %}
+                                                        <span id="valuesAdd">
+                                                        </span>
+                                                        <a class="btn btn-success fa fa-plus pull-left margin-top-3" onclick="addMore()"
+                                                                data-content="Click here to add more fields" rel="popover"
+                                                                data-placement="auto" data-original-title="Add Field" data-trigger="hover"
+                                                                style="position:absolute; bottom:0; right: 0;"> {% trans 'Add field' %}</a>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                            <label id="lbl_free_field" class="checkbox" style="margin-top: 10px">
+                                                <input id="free_field" name="free_field" type="checkbox" value="0">
+                                                <i></i> {% trans 'Free Field' %}
+                                            </label>
+                                            <div class="text-center">
+                                                <!-- BUTTON SAVE SET -->
+                                                <a class="text-hide" href="#" id="setName" data-type="text" data-pk="1" data-title="{% trans 'Enter Answer Set name' %}"></a>
+                                                <button id="saveSet" class="margin-top-10 btn btn-info btn-sm fa fa-check"> {% trans 'Save Set' %}</button>
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <!-- SETS -->
+                                                    <div class="fancy-form fancy-form-select" id="div-select-set" >
+                                                        <select id="selectSet" class="form-control select" data-content="Can choose answer set from the drop down menu below" rel="popover"
+                                                                data-placement="top" data-original-title="Answer Set" data-trigger="hover" onchange="addSet()">
+                                                            <option value="">Select Saved Answares Group</option>
+                                                            {% for set in sets %}
+                                                            <option value="{{ set.id }}">{{ set }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <i class="fancy-arrow"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <a class="btn btn-danger btn-sm fa fa-remove" href="{% url 'survey:edit' questionnaire.survey_id %}" role="button"> {% trans 'Cancel' %}</a>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pull-right">
+                                {% if action == 'add' %}
+                                <button onclick="window.add_anoter=true;sendForm();" class="btn btn-sm btn-info"><i class="fa fa-save"></i>{% trans 'Save and add another' %}</button>
+                                {% endif %}
+                                <button onclick="sendForm();" class="btn btn-sm btn-success"><i class="fa fa-save"></i>{% trans 'Save' %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_javascript %}
+    <!-- JS JQGRID TABLE -->
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/jqgrid/js/jquery.jqGrid.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/jqgrid/js/i18n/grid.locale-en.js"></script>
+{#    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.datepicker/js/bootstrap-datepicker.min.js"></script>#}
+    <script type="text/javascript" src="{{ STATIC_URL }}bootstrap-checkbox/bootstrap-checkbox.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-bar-rating/jquery.barrating.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}smarty/plugins/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>
+    <script type="text/javascript">
+        window.check_box_choose_inc = 0;
+        window.add_anoter = false;
+        function range(start, stop, step) {
+            if (typeof stop == 'undefined') {
+                // one param defined
+                stop = start;
+                start = 0;
+            }
+            if (typeof step == 'undefined') {
+                step = 1;
+            }
+            if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+                return [];
+            }
+            var result = [];
+            for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+                result.push(i);
+            }
+            return result;
+        };
+        function updateCheckBoxChoose() {
+            $('#selAnsTypeCC').find('option').remove();
+            $('#selAnsTypeCC').append('<option value="">---Select---</option>');
+            if (window.check_box_choose_inc > 2 ) {
+                var arr = range(2, window.check_box_choose_inc);
+                    for (var i in arr) {
+                        $('#selAnsTypeCC').append('<option val="' + arr[i] +'">' + arr[i] + '</option>')
+                    }
+            }
+            // exibir ocultar free-field
+            if (window.ansType == 'id_tab_check_box') {
+                if (window.check_box_choose_inc == 0 ) {
+                    console.log('update checkbox HIDE')
+                    $('#lbl_free_field').hide('slow');
+                    $('#free_field').prop('checked', false);
+                    $('#free_field').hide('slow');
+
+                    $('#lbl_free_field').prop('checked', false);
+                } else {
+                    console.log('update checkbox ELSE')
+                    $('#lbl_free_field').show('slow');
+                }
+            } else {
+                if (window.check_box_choose_inc == 0 ) {
+                    console.log('update checkbox HIDE')
+                    $('#saveSet').hide('slow');
+                } else {
+                    console.log('update checkbox ELSE')
+                    $('#saveSet').show('slow');
+                }
+            }
+            console.log('update checkbox', window.check_box_choose_inc)
+        };
+
+        (function($) {
+            $.fn.goTo = function() {
+                $('html, body').animate({
+                    scrollTop: $(this).offset().top + 'px'
+                }, 'fast');
+                return this; // for chaining...
+            }
+        })(jQuery);
+        var fileId = 0;
+        function addElement(parentId, elementTag, elementId, html) {
+            // Adds an element to the document
+            var p = document.getElementById(parentId);
+            var newElement = document.createElement(elementTag);
+            newElement.setAttribute('style', 'margin-top: 5px;');
+            newElement.setAttribute('class', 'form-group');
+            newElement.setAttribute('id', elementId);
+            newElement.innerHTML = html;
+            p.appendChild(newElement);
+        }
+        function removeElement(elementId) {
+            var element = document.getElementById(elementId);
+            function remove() {
+                window.check_box_choose_inc--;
+                // Removes an element from the document
+                element.parentNode.removeChild(element);
+                updateCheckBoxChoose();
+            };
+            remove();
+            /*var value_id = $(element).data('id')
+            if (value_id) {
+                Dajaxice.apps.questionnaire.delete_value(
+                        Dajax.process, {
+                            'value_id': value_id
+                        }
+                );
+                console.log('el', $(element).data('id'))
+            } else {
+                console.log('sem data id')
+            }*/
+        };
+
+        function addMore(ans, val) {
+            if (ans == undefined) {
+                ans = ''
+            }
+            if (val == undefined) {
+                val = ''
+            }
+            fileId++; // increment fileId to get a unique ID for the new element
+            var html = '<input type="number" class="form-control" name="value-' + fileId + '"placeholder="Value" style="margin-right: 10px; width: 80px" value="' + val + '">' +
+                    '<input type="text" class="form-control" name="answer-' + fileId + '" placeholder="Answer" style="margin-right: 10px;" value="' + ans + '">' +
+                    '<button data-name="removeElement" onclick="removeElement(\'div-value-' + fileId + '\')" class="btn btn-danger fa fa-remove"></button>';
+            window.check_box_choose_inc++;
+            addElement('valuesAdd', 'div', 'div-value-' + fileId, html);
+            updateCheckBoxChoose();
+        }
+        // ADD ANSWER SET
+        function addSet() {
+            var table_values = jQuery("#panel-values");
+            table_values.block({
+                message: '<i class="fa fa-spinner fa-pulse fa-3x fa-fw margin-bottom"></i>',
+                css: { padding: '5px' }
+            });
+            var selectSet = document.getElementById("selectSet");
+            var sid = selectSet.options[selectSet.selectedIndex].value;
+            // GET ANSWERS SET
+            $.getJSON("{% url 'questionnaire:get-set' %}", {sid: sid})
+                .done(function (json) {
+                    $('[data-name="removeElement"]').click();
+                    $.each( json, function( key, val ) {
+                        addMore(val.answer_text, val.answer_value);
+                        console.log(val.answer_text + ':' + val.answer_value)
+                    });
+                    $('[name=free_field]').prop('checked', false);
+                    table_values.unblock();
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    table_values.unblock();
+                    var err = textStatus + ", " + error;
+                    console.log("Request Failed: " + err);
+            });
+        }
+        /* EVENTO AO ANSWERS TYPE - CHECKBOX */
+        jQuery("[name=ansTypeC]").bind("click", function (e) {
+            if (e.target.id == 'ansTypeCC') {
+                $('#selAnsTypeCC').prop('disabled', false);
+                console.log("ansTypeCC chancge", e.target.id, 'yes');
+            } else {
+                $('#selAnsTypeCC').prop('disabled', true)
+                console.log("ansTypeCC chancge", e.target.id, 'no');
+            };
+        });
+
+        /* EVENTO AO ANSWERS TYPE - RADIO */
+        jQuery("#ansTypeRPrev5").hide();
+        jQuery("#ansTypeRPrev10").hide();
+        jQuery("[name=ansTypeR]").bind("click", function (e) {
+            var table_values = jQuery("#panel-values");
+            var preview5 = jQuery("#ansTypeRPrev5");
+            var preview10 = jQuery("#ansTypeRPrev10");
+            if (e.target.id == 'ansTypeR5S') {
+                table_values.hide('slow');
+                preview10.hide('slow');
+                preview5.show('slow');
+            } else if (e.target.id == 'ansTypeR10S') {
+                table_values.hide('slow');
+                preview5.hide('slow');
+                preview10.show('slow');
+            } else {
+                preview5.hide('slow');
+                preview10.hide('slow');
+                table_values.show('slow');
+            };
+        });
+        $('.barRating').barrating({
+            theme: 'fontawesome-stars',
+            showSelectedRating: true
+        });
+
+        /* EVENTO AO ANSWERS TYPE - DATE */
+        jQuery("[name=ansTypeD]").bind("click", function (e) {
+            $('#ansTypeDPrev').html('<input id="date_prev" type="text" class="form-control">');
+            $('#date_prev').datepicker({format: ''+$(e.target).data('format')+''});
+        });
+
+        /* EVENTO AO ANSWERS TYPE - AGE */
+        jQuery("[name=ansTypeA]").bind("click", function (e) {
+            var elmSel = $('#selAnsTypeA');
+            elmSel.empty().append('<option value="" checked>---{% trans 'Select your Age' %}---</option>');
+            if (e.target.id == 'ansTypeAG') {
+                elmSel.append('<option value="14-19">14-19</option>');
+                elmSel.append('<option value="20-29">20-29</option>');
+                elmSel.append('<option value="30-39">30-39</option>');
+                elmSel.append('<option value="40-49">40-49</option>');
+                elmSel.append('<option value="50-59">50-59</option>');
+                elmSel.append('<option value="60-69">60-69</option>');
+                elmSel.append('<option value="70-79">70-79</option>');
+            } else {
+                var i = 14
+                for (i; i <= 80; i++) {
+                    elmSel.append('<option value="' + i + '">' + i + '</option>');
+                };
+                elmSel.append('<option value="+80">+80</option>');
+            };
+        });
+
+        /* EVENTO AO ANSWERS TYPE - TEXTO */
+        jQuery("[name=ansTypeT]").bind("click", function (e) {
+            var elmPrev = $('#ansTypeTPrev');
+            if (e.target.id == 'ansTypeTA') {
+                elmPrev.html('<textarea rows="5" class="form-control"></textarea>')
+            } else {
+                elmPrev.html('<input class="form-control">')
+            };
+        });
+        $('#id_gender').checkboxpicker();
+
+        function getFormData(form){
+            var unindexed_array = form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+            console.log('getFormData', indexed_array)
+            return indexed_array;
+        }
+        function sendForm() {
+            var qname = $('#id_question_name');
+            if ( qname.val() == '') {
+
+                swal({
+                    title: "Opps!!!",
+                    text: "{% trans 'Field Name is Required' %}",
+                    type: "error",
+                    showCancelButton: false,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "OK!",
+                    closeOnConfirm: true
+                }, function(){
+                    var div = $('#grp_question_name');
+                    div.removeClass().addClass('form-group has-error');
+                    div.goTo();
+                });
+
+            } else {
+                var form =  $('#' + window.ansType + '_form');
+                sendData(getFormData(form));
+            }
+        }
+
+        function sendData(data) {
+            console.log('sendData', data);
+            $.ajax({
+                url: '{% url 'questionnaire:question-save' questionnaire.id %}',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    'question': {
+                        'text': $('#id_question_name').val(),
+                        'free_field': $('[name=free_field]').prop('checked'),
+                        'required': $('#id_question_required').prop('checked'),
+                        'type': window.ansType,
+                    },
+                    action: '{{ action }}',
+                    type_id: '{{ type.id }}',
+                    form: data,
+                    values: JSON.stringify($('#form-values').serializeArray())
+                }),
+
+                success: function (data) {
+                    console.log('success', data.question_id);
+                    if (window.add_anoter == true) {
+                        window.location.reload()
+                    } else {
+                        window.location = "{% url 'survey:edit' questionnaire.survey.id %}" + "#div-question-" + data.question_id;
+                    }
+
+                },
+                error: function (data) {
+                    console.log('error', data)
+                },
+                complete: function (data) {
+                    console.log('data', data.responseText)
+                }
+            });
+        };
+        $( window ).load(function() {
+            $.scrollTo($("#panel-2"), { duration: 1000});
+            $('#id_question_name').focus();
+            updateCheckBoxChoose();
+            window.ansType = 'id_tab_check_box';
+            console.log( "ready!" );
+            var table_values = jQuery("#panel-values");
+            $('#lbl_free_field').hide();
+            $('#div-select-set').hide();
+            {% if question.free_field == 1 %}
+                $('[name=free_field]').prop('checked', true)
+            {% else %}
+                $('[name=free_field]').prop('checked', false)
+            {% endif %}
+            {% if type.type ==  'checkBoxRow'%}
+                window.ansType = 'id_tab_check_box';
+                $('#div-select-set').hide();
+                $('#saveSet').hide();
+
+                $('#id_tab_check_box').attr('data-toggle', 'tab');
+                $('#id_tab_radio_button').attr('data-toggle', 'tab');
+                $('#id_tab_check_box').click();
+                $('#lbl_free_field').show('slow');
+                var ansPosC = $('[name="ansPosC"][value="{{ type.question.ans_position }}"]');
+                ansPosC.click()
+                var ansTypeC = $('[name="ansTypeC"][value="{{ type.question.question_type }}"]');
+                ansTypeC.click()
+                {% if question.question_type == 3 %}
+                    $('#selAnsTypeCC').find('option').remove();
+                    $('#selAnsTypeCC').append('<option value="">---Select---</option>');
+                    {% for value in type.values_set.all %}
+                        $('#selAnsTypeCC').append('<option{% if forloop.counter == question.anstype_value %} selected{% endif %} value="{{ forloop.counter }}">{{ forloop.counter }}</option>');
+                    {% endfor %}
+                {% endif %}
+
+            {% elif type.type ==  'radioButtonRow' %}
+                window.ansType = 'id_tab_radio_button';
+                $('#id_tab_check_box').attr('data-toggle', 'tab');
+                $('#id_tab_radio_button').attr('data-toggle', 'tab');
+                $('#id_tab_radio_button').click();
+                $('#lbl_free_field').hide('slow');
+                $('#free_field').prop('checked', false);
+            {% elif type.type in  'textAnsRow,textAreaRow' %}
+                window.ansType = 'id_tab_text_answer';
+                $('#id_tab_text_answer').attr('data-toggle', 'tab');
+                $('#id_tab_text_answer').click();
+                {% if type.type == 'textAnsRow' %}
+                    $('#ansTypeTB').click();
+                {% else %}
+                    $('#ansTypeTA').click()
+                {% endif %}
+                table_values.hide('slow');
+            {% elif type.type ==  'ageRow' %}
+                window.ansType = 'id_tab_age';
+                $('#id_tab_age').attr('data-toggle', 'tab');
+                $('#id_tab_age').click();
+                {% if question.question_type == 2 %}
+                    $('#ansTypeAG').click();
+                {% else %}
+                    $('#ansTypeAI').click();
+                {% endif %}
+                table_values.hide('slow');
+            {% elif type.type in 'dateRow^^Y/m/d,dateRow^^d/m/Y,dateRow^^m/d/Y' %}
+                window.ansType = 'id_tab_dates';
+                $('#id_tab_dates').attr('data-toggle', 'tab');
+                $('#id_tab_dates').click();
+
+                {% if type.type == 'dateRow^^Y/m/d' %}
+                    $('#ansTypeDY').click();
+                {% elif type.type == 'dateRow^^d/m/Y' %}
+                    $('#ansTypeDD').click();
+                {% else %}
+                    $('#ansTypeDM').click();
+                {% endif %}
+                table_values.hide('slow');
+            {% elif type.type ==  'nationalityRow' %}
+                window.ansType = 'id_tab_nationality';
+                $('#id_tab_nationality').attr('data-toggle', 'tab');
+                $('#id_tab_nationality').click();
+                table_values.hide('slow');
+            {% elif type.type ==  'sexRow' %}
+                window.ansType = 'id_tab_gender';
+                $('#id_tab_gender').attr('data-toggle', 'tab');
+                $('#id_tab_gender').click();
+                table_values.hide('slow');
+            {% elif type.type ==  'yesNoRow' %}
+                window.ansType = 'id_tab_yes_no';
+                $('#id_tab_yes_no').attr('data-toggle', 'tab');
+                $('#id_tab_yes_no').click();
+                table_values.hide('slow');
+            {% elif type.type ==  'numberRow' %}
+                window.ansType = 'id_tab_number';
+                $('#id_tab_number').attr('data-toggle', 'tab');
+                $('#id_tab_number').click();
+                table_values.hide('slow');
+            {% endif %}
+            // UPDATE CHOOSE
+            {% if action == 'edit' %}
+                {% for value in type.values_set.all %}
+                    window.check_box_choose_inc++
+                {% endfor %}
+                updateCheckBoxChoose();
+                var pos = parseInt({{ type.question.anstype_value }}) - 1
+                $('#selAnsTypeCC>option:eq(' + pos +')').attr('selected', true);
+            {% endif %}
+
+            // TAB CLICK ---------------------------------------------------------------------------------------------------
+            jQuery("[data-toggle=tab]").bind("click", function(e, x) {
+                var id = e.target.id;
+                window.ansType = id;
+                var table_values = jQuery("#panel-values");
+                console.log(id);
+
+                if (id=='id_tab_check_box' || id=='id_tab_radio_button') {
+                    table_values.show('slow');
+                    $('[data-name="removeElement"]').click();
+                    $('#selectSet').val('');
+                    if (id=='id_tab_check_box') {
+                        $('#div-select-set').hide('slow');
+                        $('#saveSet').hide('slow');
+                        if (window.check_box_choose_inc > 0) {
+                            $('#lbl_free_field').show('slow');
+                        }
+                    } else {
+                        $('#div-select-set').show('slow');
+                        $('#saveSet').show('slow');
+                        $('#lbl_free_field').hide('slow');
+                        $('#free_field').prop('checked', false);
+                        if (window.check_box_choose_inc == 0 ) {
+                            $('#saveSet').hide();
+                        } else {
+                            $('#saveSet').show('slow');
+                        }
+
+                    }
+                } else {
+                    table_values.hide('slow');
+                }
+            });
+        });
+        $.fn.editable.defaults.mode = 'popup';
+        $('#saveSet').click(function(e) {
+            e.stopPropagation();
+            console.log('toggle');
+            $('#setName').editable('toggle');
+        });
+        $('#setName').on('save', function(e, params) {
+            console.log('P', params)
+            Dajaxice.apps.questionnaire.save_set(
+                    Dajax.process, {
+                        'set_name': params.newValue,
+                        'values': JSON.stringify($('#form-values').serializeArray()
+                        )}
+            );
+        });
+    </script>
+{% endblock %}
