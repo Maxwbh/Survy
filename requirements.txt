@@ -1,0 +1,17 @@
+
+xhtml2pdf
+requests
+django
+django-suit
+django-extensions
+django-wysiwyg-redactor
+Pillow
+django-bootstrap3
+django-floppyforms
+django-ordered-model
+sorl-thumbnail
+django-dajaxice
+django-dajax
+xlwt
+unicodecsv
+xlrd
