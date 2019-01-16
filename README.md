@@ -1,6 +1,11 @@
-# survy
+# survy 
+Sistema em Django para a criação de Questionarios On-line
 
-Exemplo do sistema 
-http://191.101.11.100:8080
-Usuário: maxwbh@gmail 
-Senha: 123
+Funcionalidades implementas:  
+ - Controle de usuário;
+ - Controle de Respostas;
+ - Divulgação de Questionarios;
+ - Formulario de criação de questões em modo visual WYSIWYG (sigla de What you see is what you get - O que se vê é o que se obtém);
+ - Controle de pagamentos;
+ 
+ 
